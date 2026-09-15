@@ -1,0 +1,9 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,MEX-54D,1,,
+j1,n1,MEX-54D,1,,
+n1,n2,MEX-54D,1,,
+n2,n3,MEX-80D/45,1,,
+n2,n4,MEX-80D,1,,
+n3,n4,MEX-45,1,,
+n4,n5,MEX-45D,1,,
+n5,n6,MEX-57D,1,,

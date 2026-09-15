@@ -1,0 +1,9 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,Ruta 78,1,,
+j1,n1,Ruta 78,1,,
+n1,n2,Ruta 78,1,,
+n2,n3,Autopista Central,1,,
+n2,n4,Ruta 5 Sur,1,,
+n4,n5,Ruta 5 Sur,1,,
+o,n6,Ruta F-90/68,1,,
+n3,n6,Ruta 68,1,,

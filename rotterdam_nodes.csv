@@ -1,0 +1,10 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Rotterdam Maasvlakte,port,51.9500,4.0500,0.00,0.00
+j1,Rotterdam Waalhaven,junction,51.9000,4.4200,0.00,0.00
+n1,Moerdijk,demand,51.7000,4.6167,0.11,0.55
+n2,Tilburg,demand,51.5555,5.0913,0.18,0.50
+n3,Eindhoven,demand,51.4416,5.4697,0.17,0.48
+n4,Venlo,demand,51.3704,6.1724,0.16,0.62
+n5,Duisburg,demand,51.4344,6.7623,0.09,0.65
+n6,Nijmegen,demand,51.8126,5.8372,0.11,0.52
+n7,Utrecht,demand,52.0907,5.1214,0.18,0.40

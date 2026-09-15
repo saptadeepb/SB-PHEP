@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Visakhapatnam Port,port,17.6868,83.2185,0.00,0.00
+j1,Anandapuram NH-16 junction,junction,17.8167,83.2000,0.00,0.00
+n1,Duvvada ICD / Vizag Steel,demand,17.7180,83.1930,0.22,0.55
+n2,Anakapalle,demand,17.6911,83.0037,0.11,0.45
+n3,Vizianagaram,demand,18.1067,83.3956,0.12,0.40
+n4,Srikakulam,demand,18.2949,83.8938,0.08,0.35
+n5,Rajahmundry,demand,17.0005,81.8040,0.16,0.60
+n6,Kakinada,demand,16.9891,82.2475,0.14,0.62
+n7,Narsipatnam,demand,17.6667,82.6167,0.06,0.30
+n8,Jeypore-Koraput,demand,18.8563,82.5719,0.11,0.72

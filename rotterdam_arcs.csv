@@ -1,0 +1,10 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,A15,1,,
+j1,n1,A16,1,,
+n1,n2,A58,1,,
+n2,n3,A58,1,,
+n3,n4,A67,1,,
+n4,n5,A40,1,75,"Venlo to Duisburg by A67/A40 is about 75 km by road against a 41.5 km great-circle separation; the uniform circuity factor understates this leg badly, so the published road distance is used instead."
+j1,n7,A12,1,,
+n7,n6,A12/A50,1,,
+n6,n4,A73,1,,

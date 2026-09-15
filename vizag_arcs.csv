@@ -1,0 +1,12 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,n1,NH-16,1,,
+n1,n2,NH-16,1,,
+n2,n7,SH,1,,
+n7,n8,NH-326,1,185,"DERIVED, not published: no road distance for Narsipatnam to Jeypore could be located. The leg crosses the same Eastern Ghats section as n3-n8, so the locally observed circuity of 1.40 is applied to its 132.4 km great-circle separation instead of the corridor-wide 1.12. This is a local version of the same fitted rule and is the least defensible arc length in the four networks."
+o,j1,NH-16,1,,
+j1,n3,NH-16,1,,
+n3,n4,NH-16,1,,
+n3,n8,NH-26,1,169,"Vizianagaram to Jeypore by NH-26 is 169 km by road against a 120.4 km great-circle separation (circuity 1.40), because the leg crosses the Eastern Ghats. The corridor-wide fitted factor of 1.12 understates it by 20%, so the published road distance is used. Consistency check: port-Anandapuram-Vizianagaram-Jeypore then totals 228 km against a published Visakhapatnam-Jeypore road distance of 237 km."
+n2,n5,NH-16,1,,
+n5,n6,NH-216,1,,
+n2,n6,NH-16,1,,

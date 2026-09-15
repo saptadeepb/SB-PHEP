@@ -1,0 +1,9 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Manzanillo Port,port,19.0500,-104.3167,0.00,0.00
+j1,Colima,junction,19.2433,-103.7250,0.00,0.00
+n1,Ciudad Guzman,demand,19.7000,-103.4667,0.06,0.50
+n2,Guadalajara,demand,20.6597,-103.3496,0.28,0.45
+n3,Aguascalientes,demand,21.8853,-102.2916,0.10,0.60
+n4,Leon-Bajio,demand,21.1250,-101.6860,0.16,0.62
+n5,Queretaro,demand,20.5888,-100.3899,0.15,0.58
+n6,Mexico City,demand,19.4326,-99.1332,0.25,0.30

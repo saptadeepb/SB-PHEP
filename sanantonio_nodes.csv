@@ -1,0 +1,9 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,San Antonio Port,port,-33.5931,-71.6217,0.00,0.00
+j1,Melipilla,junction,-33.6870,-71.2150,0.00,0.00
+n1,Talagante,demand,-33.6640,-70.9280,0.08,0.55
+n2,San Bernardo,demand,-33.5920,-70.7050,0.14,0.40
+n3,Santiago-Pudahuel,demand,-33.4400,-70.7500,0.34,0.30
+n4,Rancagua,demand,-34.1708,-70.7444,0.16,0.70
+n5,Curico,demand,-34.9828,-71.2394,0.11,0.80
+n6,Valparaiso,demand,-33.0472,-71.6127,0.17,0.45
