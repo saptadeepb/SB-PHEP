@@ -1,0 +1,15 @@
+Layout audit: overlapping labels, labels outside their axes,
+legends drawn over data.  Checked by measurement at render time.
+
+fig_framework.pdf: OK
+fig_policy_framework.pdf: OK
+fig_study_areas.pdf: OK
+fig_instruments_vizag.pdf: OK
+fig_frontier_vizag.pdf: OK
+fig_reach_vizag.pdf: OK
+fig_scalability.pdf: OK
+fig_reversal.pdf: OK
+fig_regime_matrix.pdf: OK
+fig_collaboration_vizag.pdf: OK
+fig_sensitivity_carbon_vizag.pdf: OK
+fig_stochastic_vizag.pdf: OK
