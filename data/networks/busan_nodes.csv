@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Gadeok (New Port),port,35.0750,128.8180,0.00,0.00
+j1,Gimhae JC,junction,35.2300,128.8800,0.00,0.00
+n1,Changwon,demand,35.2280,128.6811,0.14,0.65
+n2,Yangsan ICD,demand,35.3350,129.0370,0.12,0.55
+n3,Ulsan,demand,35.5384,129.3114,0.12,0.70
+n4,Daegu,demand,35.8714,128.6014,0.13,0.50
+n5,Gumi,demand,36.1195,128.3446,0.10,0.75
+n6,Daejeon,demand,36.3504,127.3845,0.08,0.45
+n7,Uiwang ICD (Seoul),demand,37.3448,126.9683,0.24,0.45
+n8,Pohang,demand,36.0190,129.3435,0.07,0.70

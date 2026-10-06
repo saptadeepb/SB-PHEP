@@ -40,6 +40,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.ticker import MaxNLocator, NullFormatter
 from matplotlib.transforms import Bbox
+from .corridors import NETWORKS, COUNTRIES, FOCAL
 
 TAB = "outputs/tables"
 FIG = "outputs/figures"
@@ -65,6 +66,8 @@ plt.rcParams.update({
     "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.5,
     "axes.axisbelow": True, "figure.facecolor": "white",
     "axes.spines.top": False, "axes.spines.right": False,
+    #  embed TrueType outlines (Type 42) rather than Type 3 bitmaps, as publishers ask
+    "pdf.fonttype": 42, "ps.fonttype": 42,
 })
 
 #  Names as they are drawn on the map.  The data keep the full name; a panel
@@ -72,8 +75,15 @@ plt.rcParams.update({
 #  without putting it beside its neighbour, and the shorter form is the one a
 #  reader of the map needs.
 MAP_NAME = {
-    "Duvvada ICD / Vizag Steel": "Duvvada ICD",
-    "Anandapuram NH-16 junction": "Anandapuram",
+    "Uiwang ICD (Seoul)": "Uiwang (Seoul)",
+    "Johannesburg City Deep": "Johannesburg",
+    "Dubai Industrial City": "Dubai Ind. City",
+    "Abu Dhabi Mussafah": "Abu Dhabi",
+    "Commerce I-710/I-5": "Commerce",
+    "Durban Container Terminal": "Durban",
+    "Shanghai Waigaoqiao": "Waigaoqiao",
+    "Port of Los Angeles": "Port of LA",
+    "Gadeok (New Port)": "Gadeok",
 }
 
 FAMILY_LABEL = {
@@ -691,6 +701,14 @@ def fig_scalability() -> str | None:
     return _save(fig, "fig_scalability.pdf")
 
 
+SHORT_COUNTRY = {"Netherlands": "Netherl.", "South Korea": "S. Korea",
+                 "South Africa": "S. Africa"}
+
+
+ISO2 = {"India": "IN", "Mexico": "MX", "Netherlands": "NL", "USA": "US", "China": "CN",
+        "UAE": "AE", "South Korea": "KR", "South Africa": "ZA"}
+
+
 def fig_reversal() -> str | None:
     """Every published grid factor against the emission-neutral threshold.
 
@@ -720,13 +738,14 @@ def fig_reversal() -> str | None:
     ef0 = _f(rows[0]["ef_neutral"])
     lo, hi = _f(rows[0]["ef_neutral_low"]), _f(rows[0]["ef_neutral_high"])
 
-    fig, ax = plt.subplots(figsize=(6.8, 3.4))
+    fig, ax = plt.subplots(figsize=(7.0, 3.7))
     n = max(1, len(states))
     width = 0.8 / n
     xs = list(range(len(countries)))
     ax.axhspan(lo, hi, color=INK, alpha=0.10, zorder=0,
                label="threshold over published vehicle ranges")
-    ax.axhline(ef0, color=INK, linewidth=1.3, linestyle="--", zorder=1)
+    ax.axhline(ef0, color=INK, linewidth=1.3, linestyle="--", zorder=1,
+               label=f"threshold ef$^0$ = {ef0:.3f}")
     vmax = ef0
     for j, st in enumerate(states):
         vals = [_f(seen[(c, st)]["ef_grid_kgco2_kwh"]) if (c, st) in seen else math.nan
@@ -743,13 +762,11 @@ def fig_reversal() -> str | None:
                 ax.text(x + off, v, tag, ha="center", va="bottom", rotation=90,
                         fontsize=6.4, color=CAT[j % len(CAT)])
     ax.set_ylim(0, vmax * 1.30)
-    ax.text(len(countries) - 0.52, ef0, f"ef$^0$ = {ef0:.3f}  ", va="bottom",
-            ha="right", fontsize=7.6, color=INK)
     ax.set_xticks(xs)
-    ax.set_xticklabels(countries)
+    ax.set_xticklabels([SHORT_COUNTRY.get(c, c) for c in countries], fontsize=7.6)
     ax.set_ylabel("grid intensity (kg CO$_2$/kWh)")
-    ax.legend(frameon=False, fontsize=7.4, ncol=4, loc="lower center",
-              bbox_to_anchor=(0.5, 1.01), columnspacing=1.3)
+    ax.legend(frameon=False, fontsize=7.2, ncol=3, loc="lower center",
+              bbox_to_anchor=(0.5, 1.01), columnspacing=1.2)
     ax.grid(axis="x", visible=False)
     fig.tight_layout()
     return _save(fig, "fig_reversal.pdf")
@@ -781,7 +798,7 @@ def fig_regime_matrix() -> str | None:
     net_lab = [ports.get(n, {}).get("port", n) for n in nets]
     title = {"full": "full regime swap\n(grid, fuel prices, haulage cost)",
              "grid": "grid-only swap\n(prices and haulage held fixed)"}
-    fig, axes = plt.subplots(1, len(swaps), figsize=(4.3 * len(swaps), 3.3),
+    fig, axes = plt.subplots(1, len(swaps), figsize=(3.55 * len(swaps), 3.9),
                              squeeze=False)
     for k, swap in enumerate(swaps):
         ax = axes[0][k]
@@ -793,16 +810,17 @@ def fig_regime_matrix() -> str | None:
                 _f(r["pct_truck_movements_electric"])
         im = ax.imshow(grid, cmap="Blues", vmin=0, vmax=100, aspect="auto")
         ax.set_xticks(range(len(regs)))
-        ax.set_xticklabels(regs, rotation=20, ha="right")
+        ax.set_xticklabels([ISO2.get(c, c) for c in regs], fontsize=7)
+        ax.set_xlabel("national regime", fontsize=7.5)
         ax.set_yticks(range(len(nets)))
-        ax.set_yticklabels(net_lab if k == 0 else [""] * len(nets))
+        ax.set_yticklabels(net_lab if k == 0 else [""] * len(nets), fontsize=7)
         ax.set_title(title.get(swap, swap), fontsize=8.5)
         ax.grid(visible=False)
         for i in range(len(nets)):
             for j in range(len(regs)):
                 v = grid[i][j]
                 if not math.isnan(v):
-                    ax.text(j, i, f"{v:.0f}", ha="center", va="center", fontsize=7.5,
+                    ax.text(j, i, f"{v:.0f}", ha="center", va="center", fontsize=6.3,
                             color="white" if v > 55 else INK)
     cb = fig.colorbar(im, ax=axes[0].tolist(), fraction=0.035, pad=0.02)
     cb.set_label("truck movements served electrically (%)", fontsize=8)
@@ -986,7 +1004,7 @@ def _panel_bbox(lons, lats, pad=0.18, aspect=1.05, min_margin=0.11):
     return w, e, s_, n
 
 
-def fig_study_areas(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
+def fig_study_areas(networks=NETWORKS,
                     resolution: str = "h") -> str:
     """The four corridors on a coastline-and-border base map.
 
@@ -1009,9 +1027,10 @@ def fig_study_areas(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
     #  The figure is drawn at the size it is printed --- a hair under the text
     #  block --- so that the place names are the size they were designed to be
     #  rather than whatever a scale factor makes of them.
-    fig, axes = plt.subplots(2, 2, figsize=(6.3, 6.0))
-    fig.subplots_adjust(left=0.055, right=0.985, top=0.952, bottom=0.112,
-                        wspace=0.17, hspace=0.25)
+    nrow = (len(networks) + 1) // 2
+    fig, axes = plt.subplots(nrow, 2, figsize=(6.3, 3.0 * nrow))
+    fig.subplots_adjust(left=0.055, right=0.985, top=1 - 0.048 * 2 / nrow,
+                        bottom=0.112 * 2 / nrow, wspace=0.17, hspace=0.25)
 
     for ax, nm in zip(axes.ravel(), networks):
         net = load_network(nm, ports[nm]["circuity"])
@@ -1066,8 +1085,8 @@ def fig_study_areas(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
         #  covers a link nor forces a place name somewhere worse.
         ground_w_km = (m.urcrnrx - m.llcrnrx) * math.cos(
             math.radians((s_ + n) / 2)) / 1000.0
-        step = next((v for v in (25, 50, 100, 200, 400, 800)
-                     if v >= ground_w_km / 4), 800)
+        step = max([v for v in (10, 25, 50, 100, 200, 400, 800)
+                    if v <= ground_w_km / 3.6] or [10])
         pts = list(xy.values()) + [((xy[a][0] + xy[b][0]) / 2, (xy[a][1] + xy[b][1]) / 2)
                                    for a, b in net.edges]
         best, best_load = (0.10, 0.10), None
@@ -1324,7 +1343,7 @@ def fig_policy_framework() -> str:
     return _save(fig, "fig_policy_framework.pdf")
 
 
-def make_all(network: str = "vizag", strict: bool = True) -> List[str]:
+def make_all(network: str = FOCAL, strict: bool = True) -> List[str]:
     """Render every manuscript figure and write the layout audit.
 
     A figure that *raises* is a defect and is re-raised by default: either its

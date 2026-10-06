@@ -731,3 +731,30 @@ def _dual_block_sd(m, inst: Instance, lps, dual_bounds):
         m.SD.add(lhs <= rhs)      # weak duality gives >=, so <= closes the gap
 
     return bl
+
+
+def f4_first_best(inst: Instance, time_limit: float = 900.0, mip_gap: float = 0.0,
+                  fix_y=None, fix_bays=None):
+    """The state-contingent charge (F4) at its closed-form levels, solved exactly.
+
+    Corollary S2: at the levels of Theorem 1 the carriers' objective differs from
+    the social one only by constants, so every carrier best response is socially
+    optimal and the bilevel optimum under F4 equals the centralised optimum.  One
+    mixed-integer program therefore replaces the bilevel solve, which on the larger
+    corridors would otherwise stop on its time limit.  The equality is checked
+    numerically by validation test T6 and by the instrument comparison, which
+    solves F4 as a bilevel program.  Valid only without emission or grid caps.
+    """
+    r = centralized(inst, fix_y=fix_y, fix_bays=fix_bays, time_limit=time_limit,
+                    mip_gap=mip_gap)
+    if r.get("obj") is None:
+        return r
+    th, sg = L.pigouvian_levels(inst)
+    r = dict(r)
+    r["theta"] = {s: th for s in inst.S}
+    r["sigma"] = dict(sg)
+    r["family"] = "F4"
+    r["model"] = "F4 at the closed-form levels (Corollary S2)"
+    r["leader"] = {"y": dict(r["y"]), "bays": dict(r["bays"]),
+                   "theta": dict(r["theta"]), "sigma": dict(sg)}
+    return r

@@ -16,7 +16,7 @@ against explicit enumeration, and reports where each method stops being usable.
 
 *does anything here generalise beyond one national network?* --
 :func:`cross_country` runs the full model on four real port-hinterland corridors
-in four countries, and :func:`regime_matrix` then crosses every corridor with
+in eight countries, and :func:`regime_matrix` then crosses every corridor with
 every country's energy regime, which separates what is a property of the
 *network* from what is a property of the *grid*.
 """
@@ -31,8 +31,14 @@ from typing import Dict, List, Optional, Sequence
 
 from . import cooperative_game as CG
 from . import models as M
+from . import lp as L
 from . import scale as SC
 from .instance import DEMAND_LEVELS, Instance, build_instance
+from .corridors import NETWORKS, COUNTRIES, FOCAL
+#  Transmission and distribution losses used only for the alternative accounting
+#  boundary. India, Mexico and the Netherlands as in the original calibration; the
+#  default of 10% applies where no national figure has been verified.
+TD_LOSSES = {"India": 0.17, "Mexico": 0.12, "Netherlands": 0.04}
 
 TAB = "outputs/tables"
 
@@ -93,6 +99,34 @@ def instrument_comparison(inst: Instance, families=("F0", "F1", "F2", "F3", "F4"
             "exp_emissions_kgco2", "exp_grid_kwh", "n_electrified", "n_bays",
             "theta", "sigma", "runtime_s", "certified_mip_gap", "status"], rows)
     return res
+
+
+def all_diesel(inst: Instance, time_limit: float = 900.0) -> dict:
+    """The corridor with nothing electrified: the counterfactual a programme is judged by.
+
+    Solved as the centralised problem with every electrification decision fixed at
+    zero (and no charging bays), so carriers run diesel throughout and the cost and
+    emissions are those of keeping today's corridor.
+    """
+    _log(f"all-diesel counterfactual {inst.name}")
+    r = M.centralized(inst, fix_y={e: 0 for e in inst.E},
+                      fix_bays={e: 0 for e in inst.E}, time_limit=time_limit)
+    _write(f"all_diesel_{inst.name}.csv",
+           ["model", "exp_cost_usd", "exp_emissions_kgco2", "exp_grid_kwh",
+            "n_electrified", "status"],
+           [["all-diesel (nothing electrified)", r.get("obj"), r.get("exp_emis"),
+             r.get("exp_grid"), r.get("n_electrified"), r.get("status")]])
+    return r
+
+
+def _solve(inst: Instance, family: str, **kw) -> dict:
+    """F4 through Corollary S2 where that is exact, every other family as a bilevel MILP."""
+    if (family == "F4" and kw.get("eps_emis") is None and kw.get("eps_grid") is None
+            and kw.get("fix_theta") is None and kw.get("fix_sigma") is None):
+        return M.f4_first_best(inst, time_limit=kw.get("time_limit", 900.0),
+                               mip_gap=kw.get("mip_gap", 0.0), fix_y=kw.get("fix_y"),
+                               fix_bays=kw.get("fix_bays"))
+    return M.bilevel_sd(inst, family, **kw)
 
 
 def _load_pars():
@@ -364,7 +398,7 @@ def neutral_threshold_interval(inst) -> tuple:
     return mid, lo, hi
 
 
-def reversal_analysis(networks=("vizag", "sanantonio", "manzanillo", "rotterdam")) -> dict:
+def reversal_analysis(networks=NETWORKS) -> dict:
     """Where each grid sits relative to the two thresholds of Section 5.
 
     ``ef_neutral``  the grid carbon intensity at which one electric truck-km
@@ -428,14 +462,14 @@ def reversal_analysis(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"
                 continue
             frows.append([c, lab, x, round(mid, 4), round(lo, 4), round(hi, 4),
                           "above" if x > hi else ("below" if x < lo else "inside"),
-                          key in ("ef_avg",) or (c == "India" and key != "ef_clean"),
+                          key == "ef_avg" or c == "India",
                           key in ("ef_clean", "ef_avg", "ef_marginal")])
     #  The same question under the ALTERNATIVE accounting boundary, because the
     #  paper's strongest empirical claim is a sign relative to this threshold and the
     #  boundary moves both sides of it by different proportions.  Reporting only that
     #  the country ordering survives would not address the claim that is made.
     pars = _load_pars()
-    losses = {"India": 0.17, "Chile": 0.05, "Mexico": 0.12, "Netherlands": 0.04}
+    losses = TD_LOSSES
     ef_d_wtw = pars["ef_diesel_wtw"]["value"]
     eta = pars["charger_efficiency"]
     e_lo_ = pars["e_elec"]["low"] / eta["high"]
@@ -456,7 +490,7 @@ def reversal_analysis(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"
             frows.append([c, lab + " (delivered vs well-to-wheel)", round(xd, 4),
                           round(mid_w, 4), round(lo_w, 4), round(hi_w, 4),
                           "above" if xd > hi_w else ("below" if xd < lo_w else "inside"),
-                          True, False])
+                          key == "ef_avg" or c == "India", False])
     _write("threshold_positions.csv",
            ["country", "factor", "ef_kgco2_kwh", "ef_neutral", "ef_neutral_low",
             "ef_neutral_high", "position_vs_interval", "published_by_the_country",
@@ -469,7 +503,7 @@ def reversal_analysis(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"
 # =========================================================================== #
 #  5. cross-country study and the network x regime matrix                      #
 # =========================================================================== #
-def cross_country(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
+def cross_country(networks=NETWORKS,
                   family: str = "F4", time_limit: float = 900.0,
                   all_families=("F0", "F1", "F2", "F3", "F4")) -> dict:
     """Every corridor under its own national regime, with every instrument family.
@@ -487,7 +521,16 @@ def cross_country(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
         cen = M.centralized(inst, time_limit=time_limit)
         res = {}
         for fam in all_families:
-            res[fam] = M.bilevel_sd(inst, fam, time_limit=time_limit)
+            if fam == "F4":
+                #  Corollary S2: at the closed-form levels F4 attains the centralised
+                #  optimum exactly, so it is evaluated through that single MILP rather
+                #  than through a bilevel solve that might stop on its time limit.
+                th, sg = L.pigouvian_levels(inst)
+                res[fam] = dict(cen)
+                res[fam]["theta"] = {s: th for s in inst.S}
+                res[fam]["sigma"] = dict(sg)
+            else:
+                res[fam] = M.bilevel_sd(inst, fam, time_limit=time_limit)
             g = (res[fam]["obj"] - cen["obj"]) if res[fam].get("obj") else None
             if g is not None and abs(g) <= 1e-7 * max(1.0, abs(cen["obj"])):
                 g = 0.0
@@ -513,7 +556,7 @@ def cross_country(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
             g_ = gap_of.get(fam)
             if g_ is None:
                 return False
-            for sup in {"F0": (), "F1": (), "F2": (), "F3": ("F0",),
+            for sup in {"F0": (), "F1": ("F0",), "F2": ("F0",), "F3": ("F0",),
                         "F4": ("F0", "F3")}.get(fam, ()):
                 gs_ = gap_of.get(sup)
                 if gs_ is not None and g_ > gs_ + tolc:
@@ -522,6 +565,13 @@ def cross_country(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
         for row in fam_rows[-len(all_families):]:
             row[-1] = _nest_ok(row[3])
 
+        #  F0 (a zero charge) is a member of F3's menu, so F0's solution is a feasible
+        #  F3 design.  A time-limited F3 incumbent worse than it is therefore replaced
+        #  by it: the best F3 design *known*, still reported as time-limited.
+        for row in fam_rows[-len(all_families):]:
+            if row[3] in ("F1", "F2", "F3"):
+                repair_nested_row(row, next(r for r in fam_rows[-len(all_families):]
+                                            if r[3] == "F0"))
         f0, f4 = res["F0"], res[family]
         base = f0["obj"] if f0.get("obj") else float("nan")
         out[nm] = {"centralized": cen, "instance": inst, **res}
@@ -550,20 +600,20 @@ def cross_country(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
     return out
 
 
-def regime_matrix(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
-                  countries=("India", "Chile", "Mexico", "Netherlands"),
+def regime_matrix(networks=NETWORKS,
+                  countries=COUNTRIES,
                   family: str = "F4", time_limit: float = 900.0) -> dict:
     """Cross every corridor topology with every national regime, twice.
 
     The question is whether a result belongs to *the Indian grid* or to *the
-    Visakhapatnam corridor*.  Answering it needs care about what the column
+    focal corridor*.  Answering it needs care about what the column
     dimension actually varies, so the matrix is computed under two swaps:
 
     ``full``  the whole national regime -- grid carbon factors, electricity price,
               diesel price and the non-fuel haulage cost.  This is the right
               object for "what if this corridor were in that country", but it is
               not a grid experiment: the haulage cost alone ranges more than
-              threefold across these four countries.
+              severalfold across these eight countries.
     ``grid``  the three emission factors only, with every price and cost held at
               the corridor's own country.  This isolates the grid.
 
@@ -577,8 +627,12 @@ def regime_matrix(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
             for ctry in countries:
                 inst = (build_instance(nm, country=ctry) if swap == "full"
                         else build_instance(nm, grid_country=ctry))
-                r = M.bilevel_sd(inst, family, time_limit=time_limit)
+                #  Under the state-contingent charge at its closed-form levels the
+                #  carriers' objective IS the social objective (Theorem 1), so the
+                #  bilevel optimum is the centralised optimum (Corollary S2) and one
+                #  mixed-integer program per cell suffices.
                 cen = M.centralized(inst, time_limit=time_limit)
+                r = cen
                 share_e = sum(r["perS"][s]["electric"] * inst.prob[s] for s in inst.S)
                 share_t = sum(r["perS"][s]["trucks"] * inst.prob[s] for s in inst.S)
                 rows.append([swap, nm, ctry, r["obj"], cen["obj"],
@@ -650,10 +704,10 @@ def sensitivity(inst: Instance, family: str = "F4", time_limit: float = 180.0,
     for scc in sorted({0.0, *band("scc"), 0.55, 0.80}):
         i2 = replace(inst, w_emis=scc)
         record("social_cost_of_carbon_usd_per_kg", scc,
-               M.bilevel_sd(i2, family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(i2, family, time_limit=time_limit, mip_gap=mip_gap))
     for ps in band("platoon_saving"):
         record("platoon_saving_fraction", ps,
-               M.bilevel_sd(replace(inst, psave=ps), family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(replace(inst, psave=ps), family, time_limit=time_limit, mip_gap=mip_gap))
     #  e_elec is swept on the GRID side, which is what the model uses: the battery
     #  figure divided by the charging efficiency, at both ends of both ranges.
     eta = pars0["charger_efficiency"]
@@ -663,54 +717,54 @@ def sensitivity(inst: Instance, family: str = "F4", time_limit: float = 180.0,
                     ("high battery / worst charger",
                      pars0["e_elec"]["high"] / eta["low"])):
         record("e_truck_kwh_per_km_grid_side", round(ee, 4),
-               M.bilevel_sd(replace(inst, e_elec=ee), family,
+               _solve(replace(inst, e_elec=ee), family,
                             time_limit=time_limit, mip_gap=mip_gap), lab)
     for fd in band("f_diesel"):
         record("diesel_l_per_km", fd,
-               M.bilevel_sd(replace(inst, f_diesel=fd), family,
+               _solve(replace(inst, f_diesel=fd), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for ed in band("ef_diesel_ttw"):
         record("diesel_kgco2_per_l", ed,
-               M.bilevel_sd(replace(inst, ef_diesel=ed), family,
+               _solve(replace(inst, ef_diesel=ed), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for wg in (0.5, 1.0, 1.5):
         record("electricity_price_multiplier", wg,
-               M.bilevel_sd(replace(inst, price={s_: inst.price[s_] * wg
+               _solve(replace(inst, price={s_: inst.price[s_] * wg
                                                  for s_ in inst.S}), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for dm in (0.7, 1.0, 1.4):
         record("diesel_price_multiplier", dm,
-               M.bilevel_sd(replace(inst, p_diesel=inst.p_diesel * dm), family,
+               _solve(replace(inst, p_diesel=inst.p_diesel * dm), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for gw in band("grid_stress_weight"):
         record("grid_stress_weight_usd_per_kwh", gw,
-               M.bilevel_sd(replace(inst, w_grid=gw), family,
+               _solve(replace(inst, w_grid=gw), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for cb in band("charger_capex"):
         sc_ = cb / pars0["charger_capex"]["value"]
         record("charging_capacity_cost_usd_per_unit", round(inst.module_cost * sc_, 1),
-               M.bilevel_sd(replace(inst, module_cost=inst.module_cost * sc_), family,
+               _solve(replace(inst, module_cost=inst.module_cost * sc_), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for kf in band("electrify_capex_fixed"):
         record("electrification_fixed_cost_usd", kf,
-               M.bilevel_sd(replace(inst, K_fix={e: kf for e in inst.E}), family,
+               _solve(replace(inst, K_fix={e: kf for e in inst.E}), family,
                             time_limit=time_limit, mip_gap=mip_gap))
     for cp in band("c_platoon", extra=(0.5, 8.0)):
         record("platoon_coordination_cost_usd", cp,
-               M.bilevel_sd(replace(inst, c_plat=cp), family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(replace(inst, c_plat=cp), family, time_limit=time_limit, mip_gap=mip_gap))
     for mult in (0.5, 0.75, 1.0, 1.5, 2.0):
         i2 = replace(inst, Gavail={s: inst.Gavail[s] * mult for s in inst.S})
         record("grid_headroom_multiplier", mult,
-               M.bilevel_sd(i2, family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(i2, family, time_limit=time_limit, mip_gap=mip_gap))
     for rho in band("platoon_share_cap"):
         record("platoon_share_cap", rho,
-               M.bilevel_sd(replace(inst, rho=rho), family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(replace(inst, rho=rho), family, time_limit=time_limit, mip_gap=mip_gap))
     for wg in (0.20, inst.wage, 0.60, 1.20):
         record("haulage_cost_usd_per_km", wg,
-               M.bilevel_sd(replace(inst, wage=wg), family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(replace(inst, wage=wg), family, time_limit=time_limit, mip_gap=mip_gap))
     for pen in band("unmet_penalty", extra=(400.0, 2000.0)):
         record("unmet_demand_penalty_usd", pen,
-               M.bilevel_sd(replace(inst, PEN=pen), family, time_limit=time_limit, mip_gap=mip_gap))
+               _solve(replace(inst, PEN=pen), family, time_limit=time_limit, mip_gap=mip_gap))
     base_circ = _load_pars()["circuity"]
     for circ, lab in ((base_circ["low"], "lower bound, straight-line"),
                       (inst.meta["circuity"], "fitted for this corridor"),
@@ -718,7 +772,7 @@ def sensitivity(inst: Instance, family: str = "F4", time_limit: float = 180.0,
         i2 = build_instance(inst.name, n_carriers=len(inst.C))
         scale = circ / inst.meta["circuity"]
         i2 = replace(i2, dist={a: v * scale for a, v in i2.dist.items()})
-        record("circuity_factor", circ, M.bilevel_sd(i2, family, time_limit=time_limit, mip_gap=mip_gap), lab)
+        record("circuity_factor", circ, _solve(i2, family, time_limit=time_limit, mip_gap=mip_gap), lab)
     #  volume composition: the three port-level shares that set how many trucks the
     #  corridor carries.  DATA_SOURCES says they scale the corridor rather than
     #  change its composition; this is the experiment that tests the claim.
@@ -728,20 +782,20 @@ def sensitivity(inst: Instance, family: str = "F4", time_limit: float = 180.0,
                     ("boxes per TEU low", {"teu_factor_mult": 0.9})):
         i2 = _rescaled_volume(inst, **kw)
         record("volume_composition", lab,
-               M.bilevel_sd(i2, family, time_limit=time_limit, mip_gap=mip_gap), lab)
+               _solve(i2, family, time_limit=time_limit, mip_gap=mip_gap), lab)
     #  the entitlement rule is swept in the collaboration experiment, where it
     #  actually bites; recorded here so the table is a complete list of what moved
     #  accounting boundary: the base case compares busbar grid CO2 with
     #  tank-to-wheel diesel CO2.  The alternative grosses the grid factor up by
     #  transmission and distribution losses and takes diesel well-to-wheel.
     pars = _load_pars()
-    losses = {"India": 0.17, "Chile": 0.05, "Mexico": 0.12, "Netherlands": 0.04}
+    losses = TD_LOSSES
     loss = losses.get(inst.country, 0.10)
     i2 = replace(inst,
                  ef={s_: inst.ef[s_] / (1.0 - loss) for s_ in inst.S},
                  ef_diesel=pars["ef_diesel_wtw"]["value"])
     record("emission_boundary", "delivered grid vs well-to-wheel diesel",
-           M.bilevel_sd(i2, family, time_limit=time_limit, mip_gap=mip_gap),
+           _solve(i2, family, time_limit=time_limit, mip_gap=mip_gap),
            f"T&D losses {loss:.0%}; diesel {pars['ef_diesel_wtw']['value']} kgCO2/L")
 
     _write(f"sensitivity_{inst.name}.csv",
@@ -758,13 +812,13 @@ def collaboration(inst: Instance, family: str = "F4",
                   heterogeneities=(0.15, 0.35, 0.55, 0.75, 0.95),
                   time_limit: float = 900.0) -> dict:
     _log(f"collaboration {inst.name}")
-    base = M.bilevel_sd(inst, family, time_limit=time_limit)
+    base = _solve(inst, family, time_limit=time_limit)
     main = CG.analyse(inst, family, leader=base["leader"], outdir=TAB)
 
     rows = []
     for h in heterogeneities:
         i2 = build_instance(inst.name, n_carriers=len(inst.C), heterogeneity=h)
-        r = M.bilevel_sd(i2, family, time_limit=time_limit)
+        r = _solve(i2, family, time_limit=time_limit)
         g = CG.analyse(i2, family, leader=r["leader"])
         rows.append([h, g["standalone_total"], g["grand"], g["gain"], g["gain_pct"],
                      g["decomposition"]["pooling_gain"],
@@ -778,7 +832,7 @@ def collaboration(inst: Instance, family: str = "F4",
     ncar = []
     for n in (2, 3, 4, 5):
         i2 = build_instance(inst.name, n_carriers=n)
-        r = M.bilevel_sd(i2, family, time_limit=time_limit)
+        r = _solve(i2, family, time_limit=time_limit)
         g = CG.analyse(i2, family, leader=r["leader"])
         ncar.append([n, g["standalone_total"], g["grand"], g["gain"], g["gain_pct"],
                      g["shapley_in_core"], g["least_core_eps"]])
@@ -806,10 +860,39 @@ def collaboration(inst: Instance, family: str = "F4",
             "allocation": alloc}
 
 
+def collaboration_cross(networks=NETWORKS, family: str = "F4",
+                        time_limit: float = 900.0) -> list:
+    """The pooling/platooning decomposition on every corridor, not only the focal one.
+
+    Under F4 at the closed-form levels the authority's optimum is the centralised one
+    (Corollary S2), so each corridor needs one mixed-integer program for the leader
+    and then the cooperative game at that leader decision.
+    """
+    _log("collaboration across corridors")
+    rows = []
+    for nm in networks:
+        inst = build_instance(nm, n_carriers=3)
+        base = _solve(inst, family, time_limit=time_limit)
+        g = CG.analyse(inst, family, leader=base["leader"])
+        d = g["decomposition"]
+        tot = d["total_gain"] or float("nan")
+        rows.append([nm, inst.port, inst.country, g["standalone_total"], g["grand"],
+                     g["gain"], g["gain_pct"], d["pooling_gain"], d["platooning_gain"],
+                     100.0 * d["pooling_gain"] / tot, g["shapley_in_core"],
+                     g["core_nonempty"], base.get("status")])
+        _log(f"   {nm}: gain {g['gain_pct']:.2f}%, pooling share "
+             f"{100.0 * d['pooling_gain'] / tot:.0f}% ({base.get('status')})")
+    _write("collaboration_cross.csv",
+           ["network", "port", "country", "standalone_total_usd", "grand_coalition_usd",
+            "gain_usd", "gain_pct", "pooling_gain_usd", "platooning_gain_usd",
+            "pooling_share_pct", "shapley_in_core", "core_nonempty", "leader_status"], rows)
+    return rows
+
+
 # =========================================================================== #
 #  8. scalability                                                              #
 # =========================================================================== #
-def scalability(base_network: str = "vizag", family: str = "F4",
+def scalability(base_network: str = FOCAL, family: str = "F4",
                 edge_sizes=(3, 5, 7, 9, 11), corridors=(1, 2, 3),
                 scenario_grid=((2, 2), (3, 3), (4, 4)),
                 carriers=(2, 3, 5, 8),
@@ -913,7 +996,7 @@ def state_contingency_value(inst: Instance, time_limit: float = 900.0,
                          sigma_menu=sorted(set(i2.sigma_menu) | set(sig)))
             cen = M.centralized(i2, time_limit=time_limit, mip_gap=mip_gap)
             f3 = M.bilevel_sd(i2, "F3", time_limit=time_limit, mip_gap=mip_gap)
-            f4 = M.bilevel_sd(i2, "F4", time_limit=time_limit, mip_gap=mip_gap)
+            f4 = _solve(i2, "F4", time_limit=time_limit, mip_gap=mip_gap)
             g3 = (f3["obj"] - cen["obj"]) if f3.get("obj") else None
             g4 = (f4["obj"] - cen["obj"]) if f4.get("obj") else None
             #  F3 is a restriction of F4, so gap(F4) <= gap(F3) must hold.  If a
@@ -946,7 +1029,7 @@ def state_contingency_value(inst: Instance, time_limit: float = 900.0,
 # =========================================================================== #
 # 10. robustness of the collaboration result to the carrier-split seed         #
 # =========================================================================== #
-def collaboration_seeds(network: str = "vizag", n_carriers: int = 3,
+def collaboration_seeds(network: str = FOCAL, n_carriers: int = 3,
                         seeds=(20260909, 11, 202, 3003, 40404, 5, 66, 777, 8888, 99),
                         family: str = "F4", time_limit: float = 600.0) -> dict:
     """Re-draw the carrier split and re-run the cooperative game.
@@ -960,7 +1043,7 @@ def collaboration_seeds(network: str = "vizag", n_carriers: int = 3,
     rows = []
     for sd in seeds:
         inst = build_instance(network, n_carriers=n_carriers, seed=sd)
-        r = M.bilevel_sd(inst, family, time_limit=time_limit)
+        r = _solve(inst, family, time_limit=time_limit)
         g = CG.analyse(inst, family, leader=r["leader"])
         d = g["decomposition"]
         tot = d["total_gain"] or 1.0
@@ -987,7 +1070,7 @@ def collaboration_seeds(network: str = "vizag", n_carriers: int = 3,
 # =========================================================================== #
 # 11. in-sample stability of the scenario tree                                 #
 # =========================================================================== #
-def scenario_stability(network: str = "vizag", n_carriers: int = 3,
+def scenario_stability(network: str = FOCAL, n_carriers: int = 3,
                        splits=(1, 2, 3), delta: float = 0.15,
                        family: str = "F4", time_limit: float = 600.0) -> dict:
     """Refine the scenario tree while holding its marginals fixed.
@@ -1019,7 +1102,7 @@ def scenario_stability(network: str = "vizag", n_carriers: int = 3,
                         DE[(c, n, ns)] = round(base.DE[(c, n, s)] * (1 + off), 4)
         inst = replace(base, S=S, prob=prob, price=price, ef=ef, Gavail=gav,
                        DI=DI, DE=DE)
-        r = M.bilevel_sd(inst, family, time_limit=time_limit)
+        r = _solve(inst, family, time_limit=time_limit)
         cen = M.centralized(inst, time_limit=time_limit)
         rows.append([k, len(S), r.get("obj"), cen.get("obj"),
                      (r.get("obj") or 0) - (cen.get("obj") or 0),
@@ -1030,3 +1113,43 @@ def scenario_stability(network: str = "vizag", n_carriers: int = 3,
            ["subsplits", "n_scenarios", "cost_F4", "cost_first_best", "gap",
             "n_electrified", "n_bays", "exp_emissions_kgco2", "runtime_s"], rows)
     return {"rows": rows}
+
+def repair_nested_row(row: list, f0_row: list) -> list:
+    """Replace a time-limited F1--F3 incumbent that is worse than the F0 design.
+
+    Columns follow ``cross_country_families.csv``.  Every family contains a zero charge, so
+    the F0 design is feasible for it and its cost bounds that family's optimum.
+    The status records that the reported F3 design is the inherited one.
+    """
+    try:
+        c3, c0 = float(row[5]), float(f0_row[5])
+    except (TypeError, ValueError):
+        return row
+    if row[13] != "optimal" and c3 > c0:
+        row[5], row[6], row[7], row[8], row[9] = f0_row[5], f0_row[6], f0_row[7], \
+            f0_row[8], f0_row[9]
+        row[10], row[11] = "F0 design", "F0 design"
+        row[12] = f0_row[12]
+        row[13] = f"{row[13]} (F0 design retained)"
+        row[14] = True
+    return row
+
+
+def repair_families_csv(path: str) -> int:
+    """Apply :func:`repair_nested_row` to an existing result file; returns rows changed."""
+    import csv as _csv
+    with open(path, newline="") as fh:
+        rd = list(_csv.reader(fh))
+    head, body = rd[0], rd[1:]
+    n = 0
+    for row in body:
+        if row[3] in ("F1", "F2", "F3"):
+            f0 = next(r for r in body if r[0] == row[0] and r[3] == "F0")
+            before = list(row)
+            repair_nested_row(row, f0)
+            n += row != before
+    with open(path, "w", newline="") as fh:
+        w = _csv.writer(fh)
+        w.writerow(head)
+        w.writerows(body)
+    return n

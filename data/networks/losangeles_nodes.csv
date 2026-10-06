@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Port of Los Angeles,port,33.7406,-118.2760,0.00,0.00
+j1,Commerce I-710/I-5,junction,34.0000,-118.1590,0.00,0.00
+n1,City of Industry,demand,34.0197,-117.9587,0.16,0.20
+n2,Ontario,demand,34.0633,-117.6509,0.22,0.20
+n3,Moreno Valley,demand,33.9425,-117.2297,0.14,0.15
+n4,San Bernardino,demand,34.1083,-117.2898,0.13,0.18
+n5,Barstow,demand,34.8958,-117.0173,0.05,0.25
+n6,Las Vegas,demand,36.1699,-115.1398,0.09,0.15
+n7,Bakersfield,demand,35.3733,-119.0187,0.08,0.45
+n8,Phoenix,demand,33.4484,-112.0740,0.13,0.20

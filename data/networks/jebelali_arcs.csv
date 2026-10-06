@@ -1,0 +1,10 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,n1,E11,1,,
+n1,n2,E11 / E311,1,,
+n2,n3,E11,1,,
+n3,n4,E311,1,,
+o,n8,E611 / E77,1,,
+n8,n6,E66,1,,
+o,n5,E11,1,,
+n5,n6,E22,1,,
+n2,n7,E88,1,,

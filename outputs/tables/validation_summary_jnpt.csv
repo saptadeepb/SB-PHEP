@@ -1,0 +1,7 @@
+test,description,result,detail
+T1,embedded follower vs independent LP,PASS,max rel gap 3.79e-16
+T2,strong duality vs KKT/big-M,PASS,F0:0.0; F4:0.0
+T3,enumeration certificate,PASS,"8 designs, rel gap 0.00e+00"
+T4,analytic dual bounds valid,PASS,"14520 duals, max ratio 0.440 overall, 0.132 on the charging rows"
+T5,first best <= restricted <= unpriced,PASS,all hold
+T6,Theorem 2 levels attain the first best,PASS,rel gap 1.81e-16

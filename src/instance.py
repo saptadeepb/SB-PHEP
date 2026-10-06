@@ -225,7 +225,7 @@ class Instance:
 # --------------------------------------------------------------------------- #
 #  builder                                                                     #
 # --------------------------------------------------------------------------- #
-def build_instance(network: str = "vizag",
+def build_instance(network: str = "jnpt",
                    n_carriers: int = 3,
                    demand_levels: Tuple[str, ...] = ("L", "H"),
                    grid_states: Tuple[str, ...] = ("clean", "average", "marginal"),
@@ -267,7 +267,7 @@ def build_instance(network: str = "vizag",
     #  diesel price and the non-fuel haulage cost.  That is the right object for a
     #  question about transplanting a corridor to another country, but it is the
     #  wrong one for a question about the *grid*, because the haulage cost alone
-    #  ranges more than threefold across these four countries and is not a property
+    #  ranges more than severalfold across these eight countries and is not a property
     #  of any power system.  ``grid_country`` therefore swaps only the three
     #  emission factors, holding every price and cost at ``country``'s values, so
     #  that the matrix has a clean grid-only dimension as well as a regime one.

@@ -72,7 +72,7 @@ def main() -> None:
         sz = inst.get("size", {})
         w("## 0. The focal instance")
         w("")
-        w(f"- Visakhapatnam corridor: {sz.get('nodes')} nodes, {sz.get('arcs')} arcs, "
+        w(f"- JNPT (Nhava Sheva) corridor: {sz.get('nodes')} nodes, {sz.get('arcs')} arcs, "
           f"{sz.get('electrifiable')} electrifiable links, {sz.get('carriers')} carriers, "
           f"{sz.get('scenarios')} scenarios")
         w(f"- {inst.get('meta', {}).get('daily_boxes')} road containers per day, derived from "
@@ -102,7 +102,7 @@ def main() -> None:
         w("")
 
     # ---- 1. verification -----------------------------------------------------
-    vs = read("validation_summary_vizag.csv")
+    vs = read("validation_summary_jnpt.csv")
     if vs:
         w("## 1. Does the model compute what it claims to?")
         w("")
@@ -122,7 +122,7 @@ def main() -> None:
         w("")
 
     # ---- 2. instruments ------------------------------------------------------
-    ins = read("instruments_vizag.csv")
+    ins = read("instruments_jnpt.csv")
     if ins:
         fb = next((f(r["exp_social_cost_usd"]) for r in ins
                    if r["model"].startswith("centralized")), math.nan)
@@ -156,7 +156,7 @@ def main() -> None:
         w("")
 
     # ---- 3. reach ------------------------------------------------------------
-    rc = read("reach_vizag.csv")
+    rc = read("reach_jnpt.csv")
     if rc:
         base = f(rc[0]["min_attainable_emissions_kgco2"])
         w("## 3. Reach: the tightest emission target each instrument can induce")
@@ -187,7 +187,7 @@ def main() -> None:
         w("")
 
     # ---- 4. state contingency -------------------------------------------------
-    ct = read("state_contingency_vizag.csv")
+    ct = read("state_contingency_jnpt.csv")
     if ct:
         w("## 4. When does indexing the charge to the grid state pay?")
         w("")
@@ -215,7 +215,7 @@ def main() -> None:
 
     # ---- 5. stochastic --------------------------------------------------------
     st = S.get("stochastic", {})
-    ws = read("wait_and_see_vizag.csv")
+    ws = read("wait_and_see_jnpt.csv")
     if st:
         w("## 5. Is the uncertainty worth modelling?")
         w("")
@@ -245,7 +245,7 @@ def main() -> None:
         w("")
 
     # ---- 6. collaboration -----------------------------------------------------
-    sh = read("shapley_vizag.csv")
+    sh = read("shapley_jnpt.csv")
     co = S.get("collaboration", {})
     cs = S.get("collab_seeds", {})
     if sh and co:
@@ -331,7 +331,7 @@ def main() -> None:
     # ---- 8. cross country -------------------------------------------------------
     cc = read("cross_country.csv")
     if cc:
-        w("## 8. Four corridors, four grids")
+        w("## 8. Eight corridors, eight grids")
         w("")
         w("| Port | Country | First best | No charge | F4 | Links electrified | Emission cut (%) |")
         w("|---|---|---|---|---|---|---|")
@@ -415,15 +415,15 @@ def main() -> None:
       "because that figure is not well measured at 40 t, **not** because the grids are "
       "poorly measured. If one number in this package deserves a better source, it is this "
       "one.")
-    w("- The outer grid states for Chile, Mexico and the Netherlands are **constructed**, "
+    w("- The outer grid states for every country except India are **constructed**, "
       "and their clean states are below anything those majority-fossil systems reach today. "
       "The *mean* of each country's tree is calibrated to its published annual average, so "
       "no aggregate result depends on the outer levels; but the state *spread*, which is "
       "what makes state-contingent pricing worth anything, is a construction for three of "
-      "the four countries.")
+      "the eight countries.")
     w("- The regime matrix separates carbon from topology only in its **grid-only** panel. "
       "The full-regime panel also moves both fuel prices and the non-fuel haulage cost, "
-      "which ranges threefold across these four countries and is not a property of any "
+      "which ranges threefold across these eight countries and is not a property of any "
       "power system.")
     w("- The corridor networks are comparable as modelling objects of similar structure, "
       "**not** as equally complete representations of their hinterlands. Rotterdam's and "

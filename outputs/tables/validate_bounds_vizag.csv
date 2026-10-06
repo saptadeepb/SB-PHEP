@@ -1,2 +1,0 @@
-duals_checked,max_observed_over_bound,max_observed_over_bound_chgcap,violations,by_row_family
-14520,0.394067,0.029347,0,arccap=0.000; chgcap=0.029; empty=0.229; export=0.269; gridcap=0.394; import=0.269; platD=0.000; platE=0.002; platcap=0.002; trucks=0.043; ucapE=0.000; ucapI=0.000

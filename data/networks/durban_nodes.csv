@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Durban Container Terminal,port,-29.8710,31.0230,0.00,0.00
+j1,Pinetown,junction,-29.8167,30.8667,0.00,0.00
+n1,Pietermaritzburg,demand,-29.6006,30.3794,0.10,0.40
+n2,Ladysmith,demand,-28.5539,29.7784,0.05,0.45
+n3,Harrismith,demand,-28.2723,29.1295,0.04,0.40
+n4,Johannesburg City Deep,demand,-26.2200,28.0800,0.36,0.35
+n5,Pretoria,demand,-25.7479,28.2293,0.18,0.40
+n6,Newcastle,demand,-27.7580,29.9318,0.06,0.55
+n7,Bloemfontein,demand,-29.0852,26.1596,0.08,0.35
+n8,eMalahleni,demand,-25.8713,29.2332,0.13,0.60

@@ -1,0 +1,11 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,Namhae 2nd Branch,1,,
+j1,n1,Namhae Expressway,1,,
+j1,n2,Jungang Branch,1,,
+n2,n3,Ulsan Expressway,1,,
+n2,n4,Gyeongbu / Jungang,1,,
+n4,n5,Gyeongbu,1,,
+n5,n6,Gyeongbu,1,,
+n6,n7,Gyeongbu,1,,
+n3,n8,Donghae,1,,
+n4,n8,Daegu-Pohang,1,,

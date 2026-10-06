@@ -39,7 +39,7 @@ from . import validate as V
 from .instance import build_instance
 
 OUT = "outputs"
-FOCAL = "vizag"
+from .corridors import FOCAL  # noqa: E402
 
 
 def _t(msg: str) -> None:
@@ -111,7 +111,7 @@ def run_validation(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
 
 
 def run_main(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
-    _t("focal case: Visakhapatnam corridor")
+    _t("focal case: JNPT corridor")
     inst = build_instance(FOCAL, n_carriers=3)
     summary["instance"] = {"size": inst.size(), "meta": inst.meta,
                            "price": inst.price, "ef": inst.ef,
@@ -131,9 +131,19 @@ def run_main(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
                               for k, v in instr.items()}
     _dump(summary)
 
+    X.all_diesel(inst, time_limit=time_limit)
     summary["stochastic"] = X.stochastic_value(inst, "F4", time_limit=time_limit)
     _dump(summary)
 
+    run_main_collab(summary, time_limit, inst)
+
+
+def run_main_collab(summary: Dict[str, Any], time_limit: float = 900.0,
+                    inst=None) -> None:
+    """Collaboration and sensitivity on the focal corridor (second half of ``main``)."""
+    if inst is None:
+        _t("focal case: JNPT corridor (collaboration and sensitivity)")
+        inst = build_instance(FOCAL, n_carriers=3)
     coll = X.collaboration(inst, "F4", time_limit=time_limit)
     summary["collaboration"] = {
         "gain": coll["main"]["gain"], "gain_pct": coll["main"]["gain_pct"],
@@ -147,7 +157,7 @@ def run_main(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
     }
     _dump(summary)
 
-    X.sensitivity(inst, "F4", time_limit=min(time_limit, 120.0))
+    X.sensitivity(inst, "F4", time_limit=time_limit, mip_gap=0.0)
     _dump(summary)
 
 
@@ -228,6 +238,15 @@ def main(argv) -> None:
         run_validation(summary, tl)
     if what in ("all", "main"):
         run_main(summary, tl)
+    if what == "collab":
+        run_main_collab(summary, tl)
+    if what == "collabx":
+        _t("collaboration across corridors")
+        X.collaboration_cross(time_limit=tl)
+    if what == "sens":
+        _t("sensitivity at zero optimality gap")
+        X.sensitivity(build_instance(FOCAL, n_carriers=3), "F4", time_limit=tl, mip_gap=0.0)
+        _dump(summary)
     if what in ("all", "frontier"):
         run_frontier(summary, min(tl, 900.0))
     if what in ("all", "extras"):

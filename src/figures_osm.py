@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from . import figures as F
+from .corridors import NETWORKS
 from .data_io import load_network, load_ports
 
 WEB_MERCATOR_R = 6378137.0
@@ -73,7 +74,7 @@ def _provider(name: str):
     return obj
 
 
-def fig_study_areas_osm(networks=("vizag", "sanantonio", "manzanillo", "rotterdam"),
+def fig_study_areas_osm(networks=NETWORKS,
                         source: str = "osm", out: str | None = None,
                         zoom: str | int = "auto") -> str:
     """The four corridors over raster tiles, otherwise identical to the offline figure."""

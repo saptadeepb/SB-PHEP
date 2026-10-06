@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Shanghai Waigaoqiao,port,31.3600,121.6000,0.00,0.00
+j1,Shanghai Jiading,junction,31.3800,121.2500,0.00,0.00
+n1,Kunshan,demand,31.3856,120.9800,0.13,0.62
+n2,Suzhou,demand,31.2990,120.5853,0.20,0.62
+n3,Wuxi,demand,31.4912,120.3119,0.13,0.60
+n4,Changzhou,demand,31.8106,119.9740,0.09,0.58
+n5,Nanjing,demand,32.0603,118.7969,0.11,0.50
+n6,Jiaxing,demand,30.7461,120.7555,0.09,0.60
+n7,Hangzhou,demand,30.2741,120.1551,0.17,0.55
+n8,Huzhou,demand,30.8930,120.0880,0.08,0.58

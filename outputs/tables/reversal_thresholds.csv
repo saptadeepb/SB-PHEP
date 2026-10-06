@@ -1,16 +1,10 @@
 network,country,scenario,ef_grid_kgco2_kwh,ef_neutral,ef_neutral_low,ef_neutral_high,ef_social_breakeven,elec_kgco2_per_km,diesel_kgco2_per_km,cleaner_option,robustness_of_sign,socially_cheaper_option,carbon_price_flip_usd_kg
-vizag,India,L-CL,0.512,0.6706,0.4807,0.8476,1.4793,0.6957,0.9112,electric,undetermined by the data,electric,
-vizag,India,L-AV,0.71,0.6706,0.4807,0.8476,1.3588,0.9647,0.9112,diesel,undetermined by the data,electric,3.322
-vizag,India,L-MA,0.961,0.6706,0.4807,0.8476,1.0272,1.3057,0.9112,diesel,"diesel, robustly",electric,0.2333
-vizag,India,H-CL,0.512,0.6706,0.4807,0.8476,1.4793,0.6957,0.9112,electric,undetermined by the data,electric,
-vizag,India,H-AV,0.71,0.6706,0.4807,0.8476,1.3588,0.9647,0.9112,diesel,undetermined by the data,electric,3.322
-vizag,India,H-MA,0.961,0.6706,0.4807,0.8476,1.0272,1.3057,0.9112,diesel,"diesel, robustly",electric,0.2333
-sanantonio,Chile,L-CL,0.045,0.6706,0.4807,0.8476,1.2493,0.0611,0.9112,electric,"electric, robustly",electric,
-sanantonio,Chile,L-AV,0.289,0.6706,0.4807,0.8476,1.0746,0.3927,0.9112,electric,"electric, robustly",electric,
-sanantonio,Chile,L-MA,0.82,0.6706,0.4807,0.8476,0.5941,1.1141,0.9112,diesel,undetermined by the data,diesel,-0.0974
-sanantonio,Chile,H-CL,0.045,0.6706,0.4807,0.8476,1.2493,0.0611,0.9112,electric,"electric, robustly",electric,
-sanantonio,Chile,H-AV,0.289,0.6706,0.4807,0.8476,1.0746,0.3927,0.9112,electric,"electric, robustly",electric,
-sanantonio,Chile,H-MA,0.82,0.6706,0.4807,0.8476,0.5941,1.1141,0.9112,diesel,undetermined by the data,diesel,-0.0974
+jnpt,India,L-CL,0.512,0.6706,0.4807,0.8476,1.4793,0.6957,0.9112,electric,undetermined by the data,electric,
+jnpt,India,L-AV,0.71,0.6706,0.4807,0.8476,1.3588,0.9647,0.9112,diesel,undetermined by the data,electric,3.322
+jnpt,India,L-MA,0.961,0.6706,0.4807,0.8476,1.0272,1.3057,0.9112,diesel,"diesel, robustly",electric,0.2333
+jnpt,India,H-CL,0.512,0.6706,0.4807,0.8476,1.4793,0.6957,0.9112,electric,undetermined by the data,electric,
+jnpt,India,H-AV,0.71,0.6706,0.4807,0.8476,1.3588,0.9647,0.9112,diesel,undetermined by the data,electric,3.322
+jnpt,India,H-MA,0.961,0.6706,0.4807,0.8476,1.0272,1.3057,0.9112,diesel,"diesel, robustly",electric,0.2333
 manzanillo,Mexico,L-CL,0.06,0.6706,0.4807,0.8476,1.7902,0.0815,0.9112,electric,"electric, robustly",electric,
 manzanillo,Mexico,L-AV,0.474,0.6706,0.4807,0.8476,1.6124,0.644,0.9112,electric,"electric, robustly",electric,
 manzanillo,Mexico,L-MA,0.49,0.6706,0.4807,0.8476,1.1235,0.6658,0.9112,electric,undetermined by the data,electric,
@@ -23,3 +17,33 @@ rotterdam,Netherlands,L-MA,0.49,0.6706,0.4807,0.8476,1.7656,0.6658,0.9112,electr
 rotterdam,Netherlands,H-CL,0.03,0.6706,0.4807,0.8476,2.5678,0.0408,0.9112,electric,"electric, robustly",electric,
 rotterdam,Netherlands,H-AV,0.254,0.6706,0.4807,0.8476,2.3539,0.3451,0.9112,electric,"electric, robustly",electric,
 rotterdam,Netherlands,H-MA,0.49,0.6706,0.4807,0.8476,1.7656,0.6658,0.9112,electric,undetermined by the data,electric,
+losangeles,USA,L-CL,0.048,0.6706,0.4807,0.8476,1.3668,0.0652,0.9112,electric,"electric, robustly",electric,
+losangeles,USA,L-AV,0.384,0.6706,0.4807,0.8476,1.2478,0.5217,0.9112,electric,"electric, robustly",electric,
+losangeles,USA,L-MA,0.49,0.6706,0.4807,0.8476,0.9205,0.6658,0.9112,electric,undetermined by the data,electric,
+losangeles,USA,H-CL,0.048,0.6706,0.4807,0.8476,1.3668,0.0652,0.9112,electric,"electric, robustly",electric,
+losangeles,USA,H-AV,0.384,0.6706,0.4807,0.8476,1.2478,0.5217,0.9112,electric,"electric, robustly",electric,
+losangeles,USA,H-MA,0.49,0.6706,0.4807,0.8476,0.9205,0.6658,0.9112,electric,undetermined by the data,electric,
+shanghai,China,L-CL,0.048,0.6706,0.4807,0.8476,1.3624,0.0652,0.9112,electric,"electric, robustly",electric,
+shanghai,China,L-AV,0.525,0.6706,0.4807,0.8476,1.2554,0.7133,0.9112,electric,undetermined by the data,electric,
+shanghai,China,L-MA,0.82,0.6706,0.4807,0.8476,0.9612,1.1141,0.9112,diesel,undetermined by the data,electric,0.3697
+shanghai,China,H-CL,0.048,0.6706,0.4807,0.8476,1.3624,0.0652,0.9112,electric,"electric, robustly",electric,
+shanghai,China,H-AV,0.525,0.6706,0.4807,0.8476,1.2554,0.7133,0.9112,electric,undetermined by the data,electric,
+shanghai,China,H-MA,0.82,0.6706,0.4807,0.8476,0.9612,1.1141,0.9112,diesel,undetermined by the data,electric,0.3697
+jebelali,UAE,L-CL,0.048,0.6706,0.4807,0.8476,1.224,0.0652,0.9112,electric,"electric, robustly",electric,
+jebelali,UAE,L-AV,0.468,0.6706,0.4807,0.8476,1.1318,0.6359,0.9112,electric,"electric, robustly",electric,
+jebelali,UAE,L-MA,0.49,0.6706,0.4807,0.8476,0.8784,0.6658,0.9112,electric,undetermined by the data,electric,
+jebelali,UAE,H-CL,0.048,0.6706,0.4807,0.8476,1.224,0.0652,0.9112,electric,"electric, robustly",electric,
+jebelali,UAE,H-AV,0.468,0.6706,0.4807,0.8476,1.1318,0.6359,0.9112,electric,"electric, robustly",electric,
+jebelali,UAE,H-MA,0.49,0.6706,0.4807,0.8476,0.8784,0.6658,0.9112,electric,undetermined by the data,electric,
+busan,South Korea,L-CL,0.048,0.6706,0.4807,0.8476,1.8153,0.0652,0.9112,electric,"electric, robustly",electric,
+busan,South Korea,L-AV,0.417,0.6706,0.4807,0.8476,1.7129,0.5666,0.9112,electric,"electric, robustly",electric,
+busan,South Korea,L-MA,0.49,0.6706,0.4807,0.8476,1.4313,0.6658,0.9112,electric,undetermined by the data,electric,
+busan,South Korea,H-CL,0.048,0.6706,0.4807,0.8476,1.8153,0.0652,0.9112,electric,"electric, robustly",electric,
+busan,South Korea,H-AV,0.417,0.6706,0.4807,0.8476,1.7129,0.5666,0.9112,electric,"electric, robustly",electric,
+busan,South Korea,H-MA,0.49,0.6706,0.4807,0.8476,1.4313,0.6658,0.9112,electric,undetermined by the data,electric,
+durban,South Africa,L-CL,0.048,0.6706,0.4807,0.8476,1.7825,0.0652,0.9112,electric,"electric, robustly",electric,
+durban,South Africa,L-AV,0.699,0.6706,0.4807,0.8476,1.6587,0.9497,0.9112,diesel,undetermined by the data,electric,6.6204
+durban,South Africa,L-MA,0.82,0.6706,0.4807,0.8476,1.3184,1.1141,0.9112,diesel,undetermined by the data,electric,0.824
+durban,South Africa,H-CL,0.048,0.6706,0.4807,0.8476,1.7825,0.0652,0.9112,electric,"electric, robustly",electric,
+durban,South Africa,H-AV,0.699,0.6706,0.4807,0.8476,1.6587,0.9497,0.9112,diesel,undetermined by the data,electric,6.6204
+durban,South Africa,H-MA,0.82,0.6706,0.4807,0.8476,1.3184,1.1141,0.9112,diesel,undetermined by the data,electric,0.824

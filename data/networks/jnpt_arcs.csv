@@ -1,0 +1,12 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,SH-54 / JNPT road,1,,
+j1,n1,NH-48 / Thane bypass,1,,
+j1,n2,Mumbai-Pune Expressway,1,,
+n2,n3,NH-48,1,,
+n2,n6,NH-753F,1,,
+n3,n6,NH-753F,1,,
+n1,n4,NH-160,1,,
+n4,n5,NH-752G,1,,
+n6,n5,NH-753F,1,,
+n1,n7,NH-48,1,,
+n7,n8,NH-48,1,,

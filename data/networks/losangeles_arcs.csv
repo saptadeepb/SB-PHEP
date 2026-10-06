@@ -1,0 +1,10 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,I-710,1,,
+j1,n1,SR-60,1,,
+n1,n2,SR-60,1,,
+n2,n4,I-10,1,,
+n2,n3,SR-60,1,,
+n4,n5,I-15,1,,
+n5,n6,I-15,1,,
+n3,n8,I-10,1,,
+j1,n7,I-5,1,,

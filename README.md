@@ -2,24 +2,24 @@
 
 This repository holds the replication package for the paper
 
-> **When does electrifying freight corridors cut emissions? Emission factors, corridor pricing and carrier collaboration in port–hinterland trucking**
+> **When does electrifying port–hinterland trucking cut emissions? Grid emission factors, carbon-aligned corridor charges and carrier collaboration**
 > (submitted to *Transport Policy*, 2026; under review)
 
 It contains every input with its provenance, the model and solution code, every result file, and every figure. From these files you can reproduce each number, table and figure in the paper and its supplementary material.
 
 ## What the study asks
 
-A port–hinterland corridor authority decides three things: which road links to equip for electric trucks, how much charging capacity to install, and how to charge for corridor use. A coalition of carriers then chooses its routes, electric or diesel traction, platoons and empty-container movements. Freight demand and grid carbon intensity are uncertain. The study is calibrated on public data for four corridors, serving Visakhapatnam (India), San Antonio (Chile), Manzanillo (Mexico) and Rotterdam (the Netherlands). It answers three policy questions:
+A port–hinterland corridor authority decides three things: which road links to equip for electric trucks, how much charging capacity to install, and how to charge for corridor use. A coalition of carriers then chooses its routes, electric or diesel traction, platoons and empty-container movements. Freight demand and grid carbon intensity are uncertain. The study is calibrated on public data for eight corridors in eight countries on four continents: Jawaharlal Nehru Port / Nhava Sheva (India, the focal case), Manzanillo (Mexico), Rotterdam (the Netherlands), Los Angeles (USA), Shanghai (China), Jebel Ali (UAE), Busan (South Korea) and Durban (South Africa). It answers three policy questions:
 
-1. **When does electrification cut CO₂?** Only where the grid's emission factor is below a threshold set by the two vehicles' energy use. India's officially published emission factors fall on different sides of that threshold.
+1. **When does electrification cut CO₂?** Only where the grid's emission factor is below a threshold set by the two vehicles' energy use. India's officially published emission factors straddle that threshold's central value, and the average grids of South Africa and China lie within its uncertainty band.
 2. **How should the corridor be charged?** Charge diesel truck-kilometres, discount platooned trucks by exactly their energy saving, and add a charging surcharge indexed to the grid state. Toll waivers for platooned trucks over-reward platooning.
-3. **What should carriers share?** Information about empty containers. Pooling them delivers almost all of the collaboration gain; platooning delivers little.
+3. **What should carriers share?** Information about empty containers. On all eight corridors pooling delivers most of the collaboration gain; platooning delivers little.
 
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
-python3 -m src.run_all            # full study: about 2 h on two cores
+python3 -m src.run_all            # full study: several hours on two cores
 python3 make_interpretation.py    # plain-language note on the results -> outputs/RESULTS_INTERPRETATION.md
 ```
 
@@ -28,7 +28,10 @@ You can also run the stages one at a time:
 ```bash
 python3 -m src.run_all validate   # the six correctness tests
 python3 -m src.run_all main       # focal corridor: instruments, VSS, collaboration, sensitivity
-python3 -m src.run_all cross      # four countries, and the corridor x national-regime matrix
+python3 -m src.run_all cross      # eight corridors, and the corridor x national-regime matrix
+python3 -m src.run_all collabx    # carrier-collaboration decomposition on every corridor
+python3 -m src.run_all sens       # sensitivity sweep at zero optimality gap
+python3 -m src.certify_focal 3600 # re-solve the focal restricted instruments with a longer limit
 python3 -m src.run_all scale      # scalability of the exact methods
 python3 -m src.run_all frontier   # reach and the cost-emissions frontier per instrument
 python3 -m src.run_all extras     # state contingency, seed robustness, scenario stability
@@ -55,7 +58,9 @@ src/
   bounds.py                 the provably valid dual and slack bounds
   models.py                 follower LP, centralised, strong-duality, KKT/big-M, enumeration
   cooperative_game.py       characteristic function, Shapley value, core LP, gain decomposition
+  corridors.py              the eight corridors, their countries and the focal case
   experiments.py            the computational study
+  certify_focal.py          longer re-solve of the focal corridor's restricted instruments
   scale.py                  instance-size controls for the scalability study
   validate.py               the six correctness tests
   figures.py                every figure, including the policy-framework schematic
@@ -74,7 +79,7 @@ make_interpretation.py      results -> outputs/RESULTS_INTERPRETATION.md
 - **Deterministic runs.** The only stochastic inputs are the carrier market shares and the node-level tilts. Both are drawn once from a fixed seed (20260909) and documented in `data/DATA_SOURCES.md`, so runs are bit-reproducible.
 - **The scenario tree reproduces the published national figures.** For each corridor, the expected grid emission factor of its tree equals the country's published annual average exactly. The same holds for the expected electricity price.
 - **Electric consumption is measured on the grid side.** The published battery-side consumption is divided by the charging efficiency, and every emission, cost and threshold calculation uses this grid-side figure.
-- **Solver.** All models are linear or mixed-integer linear and are solved with HiGHS through Pyomo. No heuristic is used. Headline results are certified optimal at a zero MIP gap. The frontier and sensitivity sweeps use a `1e-4` relative gap. Every result file carries `status` and `certified_mip_gap` columns, and any row that stopped on a time limit is marked.
+- **Solver.** All models are linear or mixed-integer linear and are solved with HiGHS through Pyomo. No heuristic is used. Headline results are certified at a zero MIP gap unless a run reached its time limit; every result file carries `status` and `certified_mip_gap` columns. The reach minimisations and frontier points use a `1e-3` relative gap. Away from the focal instrument comparison the state-contingent charge (F4) is evaluated through the paper's corollary that, at its closed-form levels, the leader–follower optimum equals the centralised optimum, so those rows are single MILPs solved to proven optimality. Where a time-limited run of a restricted family (F1–F3) returned a design worse than the uncharged one, the uncharged design, which belongs to every family's menu, is reported and marked `(F0 design retained)`.
 
 ## The six correctness tests
 
@@ -89,7 +94,7 @@ make_interpretation.py      results -> outputs/RESULTS_INTERPRETATION.md
 
 ## The study-area map
 
-`figures.fig_study_areas` draws the four corridors with Basemap, using its GSHHS shoreline and WDB boundaries. The figure therefore needs no network access or tile server. `python3 -m src.figures_osm` redraws it on OpenStreetMap or CartoDB tiles if you prefer a raster base.
+`figures.fig_study_areas` draws the eight corridors with Basemap, using its GSHHS shoreline and WDB boundaries. The figure therefore needs no network access or tile server. `python3 -m src.figures_osm` redraws it on OpenStreetMap or CartoDB tiles if you prefer a raster base.
 
 ## Using your own data
 
