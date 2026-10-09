@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Nhava Sheva,port,18.9500,72.9500,0.00,0.00
+j1,Kalamboli,junction,19.0330,73.1000,0.00,0.00
+n1,Bhiwandi,demand,19.2967,73.0631,0.20,0.30
+n2,Chakan-Talegaon,demand,18.7606,73.8636,0.16,0.55
+n3,Pune,demand,18.5204,73.8567,0.14,0.50
+n4,Nashik,demand,19.9975,73.7898,0.11,0.55
+n5,Aurangabad,demand,19.8762,75.3433,0.09,0.60
+n6,Ahmednagar,demand,19.0952,74.7496,0.06,0.45
+n7,Vapi,demand,20.3893,72.9106,0.10,0.65
+n8,Surat,demand,21.1702,72.8311,0.14,0.60

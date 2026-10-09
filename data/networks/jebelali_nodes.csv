@@ -1,0 +1,10 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Jebel Ali Port,port,25.0110,55.0610,0.00,0.00
+n1,Dubai Al Quoz,demand,25.1400,55.2300,0.24,0.35
+n2,Sharjah Industrial,demand,25.3200,55.4200,0.18,0.35
+n3,Ajman,demand,25.4052,55.5136,0.07,0.30
+n4,Ras Al Khaimah,demand,25.7895,55.9432,0.07,0.45
+n5,Abu Dhabi Mussafah,demand,24.3500,54.5000,0.18,0.30
+n6,Al Ain,demand,24.2075,55.7447,0.08,0.25
+n7,Fujairah,demand,25.1288,56.3265,0.06,0.30
+n8,Dubai Industrial City,demand,24.8600,55.1700,0.12,0.40

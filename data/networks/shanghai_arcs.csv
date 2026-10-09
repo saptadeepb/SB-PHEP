@@ -1,0 +1,11 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,S20 Outer Ring,1,,
+j1,n1,G2 / G42,1,,
+n1,n2,G2 / G42,1,,
+n2,n3,G2 / G42,1,,
+n3,n4,G2 / G42,1,,
+n4,n5,G2 / G42,1,,
+o,n6,G60 / S32,1,,
+n6,n7,G60,1,,
+n7,n8,G25,1,,
+n2,n8,G50 / S58,1,,

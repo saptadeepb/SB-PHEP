@@ -1,0 +1,51 @@
+country,factor,ef_kgco2_kwh,ef_neutral,ef_neutral_low,ef_neutral_high,position_vs_interval,published_by_the_country,used_as_a_scenario_state
+India,build margin / cleanest state,0.512,0.6706,0.4807,0.8476,inside,True,True
+India,published weighted average,0.71,0.6706,0.4807,0.8476,inside,True,True
+India,CDM combined margin,0.736,0.6706,0.4807,0.8476,inside,True,False
+India,operating margin / marginal state,0.961,0.6706,0.4807,0.8476,above,True,True
+Mexico,build margin / cleanest state,0.06,0.6706,0.4807,0.8476,below,False,True
+Mexico,published weighted average,0.474,0.6706,0.4807,0.8476,below,True,True
+Mexico,operating margin / marginal state,0.49,0.6706,0.4807,0.8476,inside,False,True
+Netherlands,build margin / cleanest state,0.03,0.6706,0.4807,0.8476,below,False,True
+Netherlands,published weighted average,0.254,0.6706,0.4807,0.8476,below,True,True
+Netherlands,operating margin / marginal state,0.49,0.6706,0.4807,0.8476,inside,False,True
+USA,build margin / cleanest state,0.048,0.6706,0.4807,0.8476,below,False,True
+USA,published weighted average,0.384,0.6706,0.4807,0.8476,below,True,True
+USA,operating margin / marginal state,0.49,0.6706,0.4807,0.8476,inside,False,True
+China,build margin / cleanest state,0.048,0.6706,0.4807,0.8476,below,False,True
+China,published weighted average,0.525,0.6706,0.4807,0.8476,inside,True,True
+China,operating margin / marginal state,0.82,0.6706,0.4807,0.8476,inside,False,True
+UAE,build margin / cleanest state,0.048,0.6706,0.4807,0.8476,below,False,True
+UAE,published weighted average,0.468,0.6706,0.4807,0.8476,below,True,True
+UAE,operating margin / marginal state,0.49,0.6706,0.4807,0.8476,inside,False,True
+South Korea,build margin / cleanest state,0.048,0.6706,0.4807,0.8476,below,False,True
+South Korea,published weighted average,0.417,0.6706,0.4807,0.8476,below,True,True
+South Korea,operating margin / marginal state,0.49,0.6706,0.4807,0.8476,inside,False,True
+South Africa,build margin / cleanest state,0.048,0.6706,0.4807,0.8476,below,False,True
+South Africa,published weighted average,0.699,0.6706,0.4807,0.8476,inside,True,True
+South Africa,operating margin / marginal state,0.82,0.6706,0.4807,0.8476,inside,False,True
+India,build margin / cleanest state (delivered vs well-to-wheel),0.6169,0.8008,0.5826,1.0045,inside,True,False
+India,published weighted average (delivered vs well-to-wheel),0.8554,0.8008,0.5826,1.0045,inside,True,False
+India,CDM combined margin (delivered vs well-to-wheel),0.8867,0.8008,0.5826,1.0045,inside,True,False
+India,operating margin / marginal state (delivered vs well-to-wheel),1.1578,0.8008,0.5826,1.0045,above,True,False
+Mexico,build margin / cleanest state (delivered vs well-to-wheel),0.0682,0.8008,0.5826,1.0045,below,False,False
+Mexico,published weighted average (delivered vs well-to-wheel),0.5386,0.8008,0.5826,1.0045,below,True,False
+Mexico,operating margin / marginal state (delivered vs well-to-wheel),0.5568,0.8008,0.5826,1.0045,below,False,False
+Netherlands,build margin / cleanest state (delivered vs well-to-wheel),0.0312,0.8008,0.5826,1.0045,below,False,False
+Netherlands,published weighted average (delivered vs well-to-wheel),0.2646,0.8008,0.5826,1.0045,below,True,False
+Netherlands,operating margin / marginal state (delivered vs well-to-wheel),0.5104,0.8008,0.5826,1.0045,below,False,False
+USA,build margin / cleanest state (delivered vs well-to-wheel),0.0533,0.8008,0.5826,1.0045,below,False,False
+USA,published weighted average (delivered vs well-to-wheel),0.4267,0.8008,0.5826,1.0045,below,True,False
+USA,operating margin / marginal state (delivered vs well-to-wheel),0.5444,0.8008,0.5826,1.0045,below,False,False
+China,build margin / cleanest state (delivered vs well-to-wheel),0.0533,0.8008,0.5826,1.0045,below,False,False
+China,published weighted average (delivered vs well-to-wheel),0.5833,0.8008,0.5826,1.0045,inside,True,False
+China,operating margin / marginal state (delivered vs well-to-wheel),0.9111,0.8008,0.5826,1.0045,inside,False,False
+UAE,build margin / cleanest state (delivered vs well-to-wheel),0.0533,0.8008,0.5826,1.0045,below,False,False
+UAE,published weighted average (delivered vs well-to-wheel),0.52,0.8008,0.5826,1.0045,below,True,False
+UAE,operating margin / marginal state (delivered vs well-to-wheel),0.5444,0.8008,0.5826,1.0045,below,False,False
+South Korea,build margin / cleanest state (delivered vs well-to-wheel),0.0533,0.8008,0.5826,1.0045,below,False,False
+South Korea,published weighted average (delivered vs well-to-wheel),0.4633,0.8008,0.5826,1.0045,below,True,False
+South Korea,operating margin / marginal state (delivered vs well-to-wheel),0.5444,0.8008,0.5826,1.0045,below,False,False
+South Africa,build margin / cleanest state (delivered vs well-to-wheel),0.0533,0.8008,0.5826,1.0045,below,False,False
+South Africa,published weighted average (delivered vs well-to-wheel),0.7767,0.8008,0.5826,1.0045,inside,True,False
+South Africa,operating margin / marginal state (delivered vs well-to-wheel),0.9111,0.8008,0.5826,1.0045,inside,False,False
