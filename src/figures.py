@@ -6,10 +6,10 @@ writes, so that no figure can drift away from the numbers in the tables.
 
 Style notes
 -----------
-Colour is assigned by the job it does: identity (instrument family, country,
+Color is assigned by the job it does: identity (instrument family, country,
 method) uses a fixed categorical order, never a cycled one, and every series
 also carries a distinct marker and line style so the figures survive greyscale
-printing and colour-vision deficiency.  Axes and grids are recessive; no chart
+printing and color-vision deficiency.  Axes and grids are recessive; no chart
 uses two y-scales.
 
 Layout is checked, not eyeballed
@@ -17,7 +17,7 @@ Layout is checked, not eyeballed
 Every figure passes through :func:`audit_figure` before it is written.  The
 audit measures each piece of text with the renderer and rejects the figure if
 two labels overlap, if a label placed in data coordinates falls outside its
-axes, or if a legend sits on top of the data it is labelling.  Labels that have
+axes, or if a legend sits on top of the data it is labeling.  Labels that have
 to be positioned by hand -- the schematic's boxes, the map panels' place names
 -- are therefore fitted and placed by the measuring helpers below rather than
 by guessed offsets, and a layout regression becomes a build failure instead of
@@ -72,7 +72,7 @@ plt.rcParams.update({
 
 #  Names as they are drawn on the map.  The data keep the full name; a panel
 #  260 km across cannot carry a two-line name for a node 20 km from the port
-#  without putting it beside its neighbour, and the shorter form is the one a
+#  without putting it beside its neighbor, and the shorter form is the one a
 #  reader of the map needs.
 MAP_NAME = {
     "Uiwang ICD (Seoul)": "Uiwang (Seoul)",
@@ -92,8 +92,8 @@ FAMILY_LABEL = {
     "F2": "F2 toll waived when platooning",
     "F3": "F3 platoon-discounted, state-blind",
     "F4": "F4 platoon-discounted, state-contingent",
-    "FB": "first best (centralised)",
-    "centralized (first best)": "first best (centralised)",
+    "FB": "first best (centralized)",
+    "centralized (first best)": "first best (centralized)",
 }
 
 #  gid markers that tell the audit a text is deliberately outside its axes
@@ -202,8 +202,8 @@ def audit_figure(fig, name: str = "figure", overlap_frac: float = 0.02) -> List[
     """Report overlapping labels, labels outside their axes, and legends on data.
 
     The tolerance is small on purpose: at this type size two labels that share
-    even a few per cent of their area read as one, so anything past a couple of
-    per cent is a finding.
+    even a few percent of their area read as one, so anything past a couple of
+    percent is a finding.
     """
     r = _renderer(fig)
     problems: List[str] = []
@@ -345,7 +345,7 @@ def _boxed(ax, rect, title, body, color, fs_title=8.8, fs_body=7.3,
 
     The text is measured with the renderer and both font sizes are reduced
     together until the block fits the box with room to spare, then the block is
-    centred vertically, so nothing can run past an edge and no box carries dead
+    centered vertically, so nothing can run past an edge and no box carries dead
     space at the bottom.  Returns the two text objects.
     """
     x, y, w, h = rect
@@ -437,8 +437,8 @@ def _place_label(ax, anchor, text, obstacles, r, fontsize, color,
         ambiguous = False
         if others:
             #  A reader assigns a name to the dot nearest the name's edge, not to
-            #  the dot nearest its centre: a long name whose near edge touches its
-            #  own dot reads correctly however far its centre is.
+            #  the dot nearest its center: a long name whose near edge touches its
+            #  own dot reads correctly however far its center is.
             def _gap(p):
                 return math.hypot(min(max(p[0], bb.x0), bb.x1) - p[0],
                                   min(max(p[1], bb.y0), bb.y1) - p[1])
@@ -719,7 +719,7 @@ ISO2 = {"India": "IN", "Netherlands": "NL", "Belgium": "BE", "China-East": "CN-E
 def fig_reversal() -> str | None:
     """Every published grid factor against the emission-neutral threshold.
 
-    Plotted in kg CO2 per kWh rather than per truck-kilometre, because that is the
+    Plotted in kg CO2 per kWh rather than per truck-kilometer, because that is the
     axis on which the threshold lives: ef0 = phi*gamma_d/e_elec is a property of
     the two vehicles alone, and every grid factor in the study can be placed above
     or below it by eye.  The shaded band is the threshold carried through the
@@ -883,9 +883,9 @@ def fig_sensitivity_carbon(network: str) -> str | None:
 
 
 def fig_stochastic(network: str) -> str | None:
-    """The value of the stochastic programme, on an honest scale.
+    """The value of the stochastic program, on an honest scale.
 
-    The three cost levels are within a few per cent of one another, so a single
+    The three cost levels are within a few percent of one another, so a single
     panel either starts the bars above zero -- which exaggerates the differences
     -- or hides them.  Both panels are therefore drawn: the levels from zero, and
     the two differences that the levels exist to produce.
@@ -934,7 +934,7 @@ def _scale_bar(m, ax, lon0, lat0, length_km, fontsize=5.6, color=INK2):
     """A scale bar whose length is ``length_km`` on the ground, not in projection.
 
     Basemap's own ``drawmapscale`` lays out a bar of ``length`` \emph{projected}
-    units.  On a Mercator panel a projected kilometre is a ground kilometre only
+    units.  On a Mercator panel a projected kilometer is a ground kilometer only
     at the equator: at Rotterdam's latitude it is 0.62 of one, so the bar
     overstates distance by more than half.  This draws the bar from the ground
     distance at its own latitude instead, which is what a reader measures with.
@@ -964,7 +964,7 @@ def _panel_bbox(lons, lats, pad=0.18, aspect=1.05, min_margin=0.11):
     Three things are wanted at once.  The window must clear the corridor, it must
     leave every node at least ``min_margin`` of the span from the frame so that
     its name has somewhere to go --- a node hard against the edge is what forces a
-    name to sit beside its neighbour instead --- and the four panels must have the
+    name to sit beside its neighbor instead --- and the four panels must have the
     same proportions, since a window fitted to each corridor alone would give four
     differently shaped panels.  The aspect is equalised in Mercator units, which
     is what the projection will actually show.
@@ -1035,7 +1035,7 @@ def fig_study_areas(networks=NETWORKS,
     #  block --- so that the place names are the size they were designed to be
     #  rather than whatever a scale factor makes of them.
     #  Three panels per row.  With ten corridors the last row holds one panel in
-    #  the centre slot, and the two side slots carry the legend and the note, so
+    #  the center slot, and the two side slots carry the legend and the note, so
     #  every slot of the grid is used.
     ncol = 3
     nrow = (len(networks) + ncol - 1) // ncol
@@ -1047,9 +1047,9 @@ def fig_study_areas(networks=NETWORKS,
     rem = len(networks) % ncol
     if rem:
         last = slots[-ncol:]
-        centre = [last[ncol // 2]] if rem == 1 else last[:rem]
-        spare = [a for a in last if a not in centre]
-        slots = slots[:-ncol] + centre
+        center = [last[ncol // 2]] if rem == 1 else last[:rem]
+        spare = [a for a in last if a not in center]
+        slots = slots[:-ncol] + center
     for a in spare:
         a.axis("off")
 
@@ -1213,7 +1213,7 @@ def fig_study_areas(networks=NETWORKS,
         #  only claimed in the legend if some link on some panel is drawn that way
         handles.append(Line2D([], [], color="#9b9b9b", linewidth=1.8,
                               label="link not electrifiable"))
-    note = ("Numbers on the links are road kilometres. Shoreline, national "
+    note = ("Numbers on the links are road kilometers. Shoreline, national "
             "borders and rivers from the GSHHS and WDB databases distributed "
             "with Basemap.")
     if len(spare) >= 2:
@@ -1248,11 +1248,11 @@ def fig_framework() -> str:
            "corridor charge  $\\theta_s$  per diesel truck-km\n"
            "charging surcharge  $\\sigma_s$  per kWh", CAT[0])
     _boxed(ax, (5.75, 4.25, 4.0, 1.90),
-           "Followers: carrier coalition\n(one programme per scenario)",
+           "Followers: carrier coalition\n(one program per scenario)",
            "loaded flows, pooled empty repositioning\n"
            "traction mode: electric or diesel\n"
            "platoon formation and charging\n"
-           "linear programme $\\Rightarrow$ exact duality", CAT[1])
+           "linear program $\\Rightarrow$ exact duality", CAT[1])
 
     #  the reformulation box: title, three ingredient chips, two closing notes
     bx, by, bw, bh = 0.25, 0.68, 9.5, 2.17
@@ -1345,7 +1345,7 @@ def fig_policy_framework() -> str:
 
     #  row 2: what the authority is judged on
     _boxed(ax, (1.40, 2.95, 7.20, 0.85),
-           "Social cost the authority minimises",
+           "Social cost the authority minimizes",
            "investment + operating cost + CO$_2$ at the social cost of carbon "
            "+ grid stress", CAT[6], fs_title=7.8, fs_body=7.0, pad=0.10, gap=0.08)
     ax.add_patch(FancyArrowPatch((5.0, 4.30), (5.0, 3.85), arrowstyle="->",
@@ -1422,11 +1422,11 @@ def fig_atlas() -> str | None:
 
 
 def fig_verdicts() -> str | None:
-    """Emissions change of the social-cost-optimal programme on each corridor, split.
+    """Emissions change of the social-cost-optimal program on each corridor, split.
 
-    Traction effect: replacing the plan's diesel kilometres by electric ones (its sign
+    Traction effect: replacing the plan's diesel kilometers by electric ones (its sign
     is that of the load-weighted grid factor's distance from the threshold).  Plan
-    effect: the change in truck-kilometres the electrified plan brings.  Both as a
+    effect: the change in truck-kilometers the electrified plan brings.  Both as a
     percentage of the all-diesel corridor's emissions; the dot is their sum.
     """
     rows = _read("corridor_verdicts.csv")
