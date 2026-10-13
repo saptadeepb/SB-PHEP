@@ -1,0 +1,9 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,n1,Yanpai / Jihe Expwy,1,,
+n1,n2,Guangshen Expwy,1,,
+n2,n3,Guangshen Expwy,1,,
+n3,n4,S15 Guangfo Expwy,1,,
+n1,n5,G2518 (Shenzhen-Zhongshan Link),1,,
+n5,n6,G2518,1,,
+o,n7,S3011 Huiyan / G25,1,,
+n7,n8,G25,1,,

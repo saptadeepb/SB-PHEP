@@ -107,6 +107,11 @@ class FigureDefect(RuntimeError):
     pass
 
 
+
+def _disp(name: str) -> str:
+    """Display form of a port name (en dash between twin ports)."""
+    return name.replace("Los Angeles-Long Beach", "Los Angeles\u2013Long Beach")
+
 def _read(name: str) -> List[dict]:
     path = os.path.join(TAB, name)
     if not os.path.exists(path):
@@ -701,12 +706,14 @@ def fig_scalability() -> str | None:
     return _save(fig, "fig_scalability.pdf")
 
 
-SHORT_COUNTRY = {"Netherlands": "Netherl.", "South Korea": "S. Korea",
-                 "South Africa": "S. Africa"}
+SHORT_COUNTRY = {"Netherlands": "NL", "Belgium": "BE", "China-East": "CN East",
+                 "China-North": "CN North", "China-South": "CN South",
+                 "USA-California": "US CAMX", "UAE": "UAE", "India": "India"}
 
 
-ISO2 = {"India": "IN", "Mexico": "MX", "Netherlands": "NL", "USA": "US", "China": "CN",
-        "UAE": "AE", "South Korea": "KR", "South Africa": "ZA"}
+ISO2 = {"India": "IN", "Netherlands": "NL", "Belgium": "BE", "China-East": "CN-E",
+        "China-North": "CN-N", "China-South": "CN-S", "USA-California": "US-CA",
+        "UAE": "AE"}
 
 
 def fig_reversal() -> str | None:
@@ -1029,8 +1036,8 @@ def fig_study_areas(networks=NETWORKS,
     #  rather than whatever a scale factor makes of them.
     nrow = (len(networks) + 1) // 2
     fig, axes = plt.subplots(nrow, 2, figsize=(6.3, 3.0 * nrow))
-    fig.subplots_adjust(left=0.055, right=0.985, top=1 - 0.048 * 2 / nrow,
-                        bottom=0.112 * 2 / nrow, wspace=0.17, hspace=0.25)
+    fig.subplots_adjust(left=0.055, right=0.985, top=1 - 0.30 / (3.0 * nrow),
+                        bottom=0.95 / (3.0 * nrow), wspace=0.17, hspace=0.25)
 
     for ax, nm in zip(axes.ravel(), networks):
         net = load_network(nm, ports[nm]["circuity"])
@@ -1078,7 +1085,7 @@ def fig_study_areas(networks=NETWORKS,
                        color=CAT[1] if role == "port" else (INK2 if role == "junction" else CAT[2]),
                        zorder=6, edgecolor="white", linewidth=0.7)
 
-        ax.set_title(f"{ports[nm]['port']} ({ports[nm]['country']})", fontsize=9)
+        ax.set_title(f"{_disp(ports[nm]['port'])} ({ports[nm]['country']})", fontsize=9)
         ax.grid(visible=False)
 
         #  Scale bar, in the emptiest corner of the panel so that it neither
@@ -1127,7 +1134,7 @@ def fig_study_areas(networks=NETWORKS,
             #  carries it, and the words "Port" and "junction" are dropped from
             #  the rest.  What is left is the part a reader cannot get anywhere
             #  else: "Maasvlakte", "Waalhaven", "Melipilla".
-            port_name = ports[nm]["port"]
+            port_name = _disp(ports[nm]["port"])
             name = re.sub(r"\s+junction$", "", name, flags=re.I)
             name = re.sub(r"\s+Port$", "", name, flags=re.I)
             short = re.sub(re.escape(port_name), "", name, flags=re.I).strip(" -/,")
@@ -1326,14 +1333,14 @@ def fig_policy_framework() -> str:
 
     #  row 3: the three policy questions
     qs = [("Q1  Does electrifying\ncut CO$_2$?",
-           "only below a grid intensity\nset by the two drivetrains;\n"
-           "the emission-factor choice\ncan decide the verdict", CAT[2]),
+           "only below a grid intensity\nset by the two drivetrains,\n"
+           "judged on the grid factor\nweighted by when trucks charge", CAT[2]),
           ("Q2  How should the\ncorridor be priced?",
            "charge diesel truck-km,\ndiscount platoons by their\n"
            "energy saving, index the\ncharging surcharge to the grid", CAT[0]),
           ("Q3  What should\ncarriers share?",
-           "information to pool empty\ncontainers: it carries most\n"
-           "of the collaboration gain,\nplatooning little", CAT[1])]
+           "information to pool empty\ncontainers: where platoon\n"
+           "partners are not scarce, it\ncarries the collaboration gain", CAT[1])]
     qw, qg = 3.00, 0.25
     for i, (title, body, col) in enumerate(qs):
         _boxed(ax, (0.25 + i * (qw + qg), 0.55, qw, 1.85), title, body, col,
@@ -1341,6 +1348,92 @@ def fig_policy_framework() -> str:
     ax.add_patch(FancyArrowPatch((5.0, 2.90), (5.0, 2.50), arrowstyle="->",
                                  mutation_scale=10, color=INK2, linewidth=1.0))
     return _save(fig, "fig_policy_framework.pdf")
+
+
+def fig_atlas() -> str | None:
+    """The grids of the world's 50 busiest container ports against the threshold.
+
+    One bar per country (Ember lifecycle intensity), compared with the threshold on
+    the matching lifecycle / well-to-wheel boundary; the bar label gives the number
+    of top-50 ports and their share of top-50 throughput.
+    """
+    rows = _read("global_atlas.csv")
+    if not rows:
+        return None
+    from .data_io import load_parameters
+    pars = load_parameters()
+    eta = pars["charger_efficiency"]
+    e_mid = pars["e_elec"]["value"] / eta["value"]
+    e_lo = pars["e_elec"]["low"] / eta["high"]
+    e_hi = pars["e_elec"]["high"] / eta["low"]
+    fd, g = pars["f_diesel"], pars["ef_diesel_wtw"]
+    lo = fd["low"] * g["low"] / e_hi
+    mid = fd["value"] * g["value"] / e_mid
+    hi = fd["high"] * g["high"] / e_lo
+    agg = {}
+    tot = sum(_f(r["teu_2024_thousand"]) for r in rows)
+    for r in rows:
+        c = r["country"].replace(" (China SAR)", "")
+        a = agg.setdefault(c, {"ef": _f(r["ember_lifecycle_ef"]), "n": 0, "teu": 0.0})
+        a["n"] += 1
+        a["teu"] += _f(r["teu_2024_thousand"])
+    items = sorted(agg.items(), key=lambda kv: kv[1]["ef"])
+    fig, ax = plt.subplots(figsize=(6.6, 5.6))
+    ys = list(range(len(items)))
+    ax.axvspan(lo, hi, color=INK, alpha=0.10, zorder=0,
+               label="threshold, lifecycle grid vs well-to-wheel diesel")
+    ax.axvline(mid, color=INK, linestyle="--", linewidth=1.2, zorder=1,
+               label=f"central value {mid:.2f}")
+    cols = [CAT[0] if v["ef"] < lo else (CAT[3] if v["ef"] <= hi else CAT[1])
+            for _, v in items]
+    ax.barh(ys, [v["ef"] for _, v in items], color=cols, height=0.62, zorder=2)
+    for y, (c, v) in zip(ys, items):
+        ax.text(v["ef"] + 0.01, y, f"{v['n']} port{'s' if v['n'] > 1 else ''}, "
+                f"{100 * v['teu'] / tot:.0f}%", va="center", fontsize=6.6, color=INK2)
+    ax.set_yticks(ys)
+    ax.set_yticklabels([c for c, _ in items], fontsize=7.2)
+    ax.set_xlim(0, max(hi, max(v["ef"] for _, v in items)) * 1.22)
+    ax.set_xlabel("grid carbon intensity, latest year (kg CO$_2$e/kWh, Ember lifecycle)")
+    ax.legend(frameon=False, fontsize=7, loc="lower center", ncol=2,
+              bbox_to_anchor=(0.5, 1.0))
+    ax.grid(axis="y", visible=False)
+    fig.tight_layout()
+    return _save(fig, "fig_atlas.pdf")
+
+
+def fig_verdicts() -> str | None:
+    """Emissions change of the social-cost-optimal programme on each corridor, split.
+
+    Traction effect: replacing the plan's diesel kilometres by electric ones (its sign
+    is that of the load-weighted grid factor's distance from the threshold).  Plan
+    effect: the change in truck-kilometres the electrified plan brings.  Both as a
+    percentage of the all-diesel corridor's emissions; the dot is their sum.
+    """
+    rows = _read("corridor_verdicts.csv")
+    if not rows:
+        return None
+    rows = sorted(rows, key=lambda r: _f(r["emis_change_pct"]))
+    fig, ax = plt.subplots(figsize=(6.6, 3.9))
+    ys = list(range(len(rows)))
+    tr = [100 * _f(r["traction_effect_kg"]) / _f(r["emis_all_diesel"]) for r in rows]
+    pl = [100 * _f(r["plan_effect_kg"]) / _f(r["emis_all_diesel"]) for r in rows]
+    tot = [_f(r["emis_change_pct"]) for r in rows]
+    ax.barh(ys, tr, color=CAT[0], height=0.6, label="traction effect", zorder=2)
+    ax.barh(ys, pl, left=[min(0.0, t) if p < 0 else max(0.0, t) for t, p in zip(tr, pl)],
+            color=CAT[3], height=0.6, label="plan effect (more truck-km)", zorder=2)
+    ax.scatter(tot, ys, color=INK, s=14, zorder=3, label="total change")
+    ax.axvline(0, color=INK, linewidth=0.8)
+    lab = {"Netherlands": "NL", "Belgium": "BE", "China-East": "CN-E", "China-North": "CN-N",
+           "China-South": "CN-S", "USA-California": "US-CA", "UAE": "AE", "India": "IN"}
+    ax.set_yticks(ys)
+    ax.set_yticklabels([f"{_disp(r['port'])} ({lab.get(r['regime'], r['regime'])})" for r in rows],
+                       fontsize=7.2)
+    ax.set_xlabel("change in expected CO$_2$ vs the all-diesel corridor (%)")
+    ax.legend(frameon=False, fontsize=7, loc="lower center", ncol=3,
+              bbox_to_anchor=(0.5, 1.0))
+    ax.grid(axis="y", visible=False)
+    fig.tight_layout()
+    return _save(fig, "fig_verdicts.pdf")
 
 
 def make_all(network: str = FOCAL, strict: bool = True) -> List[str]:
@@ -1360,6 +1453,8 @@ def make_all(network: str = FOCAL, strict: bool = True) -> List[str]:
             ("reach", lambda: fig_reach(network)),
             ("scalability", lambda: fig_scalability()),
             ("reversal", lambda: fig_reversal()),
+            ("atlas", lambda: fig_atlas()),
+            ("verdicts", lambda: fig_verdicts()),
             ("regime matrix", lambda: fig_regime_matrix()),
             ("collaboration", lambda: fig_collaboration(network)),
             ("carbon sensitivity", lambda: fig_sensitivity_carbon(network)),

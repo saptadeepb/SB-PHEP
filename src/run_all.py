@@ -111,7 +111,7 @@ def run_validation(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
 
 
 def run_main(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
-    _t("focal case: JNPT corridor")
+    _t(f"lead case: {FOCAL} corridor")
     inst = build_instance(FOCAL, n_carriers=3)
     summary["instance"] = {"size": inst.size(), "meta": inst.meta,
                            "price": inst.price, "ef": inst.ef,
@@ -165,7 +165,7 @@ def run_frontier(summary: Dict[str, Any], time_limit: float = 300.0) -> None:
     _t("emissions frontier by instrument family")
     inst = build_instance(FOCAL, n_carriers=3)
     summary["frontier"] = {k: v for k, v in
-                           X.emissions_frontier(inst, ("F0", "F2", "F4"),
+                           X.emissions_frontier(inst, ("F0", "F2", "F4"), n_points=3,
                                                 time_limit=time_limit).items()}
     _dump(summary)
 
@@ -199,16 +199,26 @@ def run_cross(summary: Dict[str, Any], time_limit: float = 900.0) -> None:
     _t("cross-country study")
     summary["reversal"] = X.reversal_analysis()
     _dump(summary)
-    cc = X.cross_country(time_limit=time_limit)
-    summary["cross_country"] = {
-        nm: {"country": d["instance"].country, "port": d["instance"].port,
-             "first_best": d["centralized"]["obj"], "F0": d["F0"]["obj"],
-             "F4": d["F4"]["obj"],
-             "n_elec_F4": d["F4"]["n_electrified"], "n_edges": len(d["instance"].E),
-             "emis_F0": d["F0"]["exp_emis"], "emis_F4": d["F4"]["exp_emis"]}
-        for nm, d in cc.items()}
-    _dump(summary)
+    X.cross_country(time_limit=time_limit)
+    _cross_summary(summary)
     X.regime_matrix(time_limit=time_limit)
+    _dump(summary)
+
+
+def _cross_summary(summary: Dict[str, Any]) -> None:
+    import csv as _csv, os as _os
+    p = _os.path.join(X.TAB, "cross_country.csv")
+    if not _os.path.exists(p):
+        return
+    summary["cross_country"] = {
+        r["network"]: {"country": r["country"], "port": r["port"],
+                       "first_best": float(r["cost_first_best"]),
+                       "F0": float(r["cost_no_charge"]), "F4": float(r["cost_F4"]),
+                       "n_elec_F4": int(float(r["n_elec_F4"])),
+                       "n_edges": int(float(r["n_edges"])),
+                       "emis_F0": float(r["emis_no_charge"]),
+                       "emis_F4": float(r["emis_F4"])}
+        for r in _csv.DictReader(open(p))}
     _dump(summary)
 
 
@@ -240,6 +250,22 @@ def main(argv) -> None:
         run_main(summary, tl)
     if what == "collab":
         run_main_collab(summary, tl)
+    if what == "verdicts":
+        _t("corridor verdicts and theory checks")
+        X.corridor_verdicts(time_limit=tl)
+        X.global_atlas()
+    if what == "ensemble":
+        _t("split ensemble")
+        X.split_ensemble(time_limit=min(tl, 300.0))
+    if what == "reachx":
+        _t("reach across corridors")
+        X.reach_across(time_limit=min(tl, 900.0))
+    if what == "haulage":
+        _t("haulage-cost neutrality")
+        X.haulage_neutrality(time_limit=tl)
+    if what == "lifetime":
+        _t("lifetime thresholds")
+        X.lifetime_thresholds()
     if what == "collabx":
         _t("collaboration across corridors")
         X.collaboration_cross(time_limit=tl)
@@ -257,6 +283,17 @@ def main(argv) -> None:
         run_seeds(summary, min(tl, 600.0))
     if what == "stability":
         run_stability(summary, min(tl, 600.0))
+    if what == "crossp":          # python3 -m src.run_all crossp 300 shanghai,ningbo
+        nets = tuple(argv[3].split(","))
+        X.cross_country(networks=nets, time_limit=tl)
+    if what == "regimep":
+        nets = tuple(argv[3].split(","))
+        X.regime_matrix(networks=nets, time_limit=tl)
+    if what == "crossmerge":
+        X.cross_country(time_limit=tl, only_ckpt=True)
+        X.regime_matrix(time_limit=tl, only_ckpt=True)
+        X.repair_f0_rows()
+        _cross_summary(summary)
     if what in ("all", "cross"):
         run_cross(summary, tl)
     if what in ("all", "scale"):

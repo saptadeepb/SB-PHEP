@@ -1,0 +1,2 @@
+model,exp_cost_usd,exp_emissions_kgco2,exp_grid_kwh,n_electrified,status
+all-diesel (nothing electrified),1381008258.0261793,497960384.28734636,0.0,0,optimal

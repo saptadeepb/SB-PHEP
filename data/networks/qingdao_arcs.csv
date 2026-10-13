@@ -1,0 +1,10 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,G15,1,,
+o,n1,Jiaozhou Bay Bridge,1,,
+j1,n2,G20,1,,
+n2,n3,G20,1,,
+n3,n4,G20,1,,
+j1,n5,G15,1,,
+o,n6,G15 / G1511,1,,
+n6,n7,G1511,1,,
+n4,n8,G3 / G2,1,,

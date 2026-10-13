@@ -1,0 +1,11 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Qingdao Qianwan,port,36.0044,120.2028,0.00,0.00
+j1,Jiaozhou,junction,36.2647,120.0334,0.00,0.00
+n1,Qingdao,demand,36.0669,120.3827,0.154,0.55
+n2,Weifang,demand,36.7080,119.1620,0.144,0.55
+n3,Zibo,demand,36.8138,118.0550,0.072,0.55
+n4,Jinan,demand,36.6702,117.0207,0.141,0.55
+n5,Yantai,demand,37.4646,121.4478,0.109,0.55
+n6,Linyi,demand,35.1038,118.3564,0.168,0.55
+n7,Jining,demand,35.4151,116.5871,0.128,0.55
+n8,Tai'an,demand,36.2020,117.0870,0.084,0.55

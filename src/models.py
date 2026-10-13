@@ -637,6 +637,10 @@ def _extract(m, inst: Instance, lps, total, op, em, gr, family: str) -> dict:
             "electric": sum(xs[("xE", a)] for a in inst.arcs),
             "platooned": sum(xs[("pE", a)] + xs[("pD", a)] for a in inst.arcs),
             "empty_km": sum(xs[("z", a)] * inst.dist[a] for a in inst.arcs),
+            "electric_km": sum(xs[("xE", a)] * inst.dist[a] for a in inst.arcs),
+            "diesel_km": sum(xs[("xD", a)] * inst.dist[a] for a in inst.arcs),
+            "plat_e_km": sum(xs[("pE", a)] * inst.dist[a] for a in inst.arcs),
+            "plat_d_km": sum(xs[("pD", a)] * inst.dist[a] for a in inst.arcs),
             "unmet": sum(xs[("uI", c, n)] + xs[("uE", c, n)]
                          for c in inst.C for n in inst.Dn),
         }

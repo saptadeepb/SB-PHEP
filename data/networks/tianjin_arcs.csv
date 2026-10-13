@@ -1,0 +1,9 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,n1,G2 (Jingjintang),1,,
+n1,n2,G2 (Jingjintang),1,,
+n2,n3,G2 (Jingjintang),1,,
+n3,n8,G6,1,,
+o,n4,G25 (Tangjin),1,,
+n1,n5,G2 / G3,1,,
+n1,n6,G18 (Baojin),1,,
+n6,n7,G4,1,,

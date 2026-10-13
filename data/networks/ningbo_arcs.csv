@@ -1,0 +1,9 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,n1,G1501 Ningbo Ring,1,,
+n1,n2,G9221 Hangzhou-Ningbo,1,,
+n2,n3,G9221 Hangzhou-Ningbo,1,,
+n3,n4,G25,1,,
+n1,n5,G1512 Ningbo-Jinhua,1,181,Ningbo-Yiwu drive 112.6 mi (181 km) per Rome2rio route planner: https://www.rome2rio.com/s/Ningbo/Yiwu
+n1,n6,G15,1,,
+n6,n7,G15,1,,
+n1,n8,G15 (Hangzhou Bay Bridge),1,,
