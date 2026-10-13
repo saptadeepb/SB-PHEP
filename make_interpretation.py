@@ -21,6 +21,8 @@ import sys
 from typing import List
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
+from src.corridors import FOCAL, NETWORKS  # noqa: E402
 TAB = os.path.join(ROOT, "outputs", "tables")
 OUT = os.path.join(ROOT, "outputs", "RESULTS_INTERPRETATION.md")
 
@@ -72,7 +74,7 @@ def main() -> None:
         sz = inst.get("size", {})
         w("## 0. The focal instance")
         w("")
-        w(f"- JNPT (Nhava Sheva) corridor: {sz.get('nodes')} nodes, {sz.get('arcs')} arcs, "
+        w(f"- Rotterdam (lead) corridor: {sz.get('nodes')} nodes, {sz.get('arcs')} arcs, "
           f"{sz.get('electrifiable')} electrifiable links, {sz.get('carriers')} carriers, "
           f"{sz.get('scenarios')} scenarios")
         w(f"- {inst.get('meta', {}).get('daily_boxes')} road containers per day, derived from "
@@ -102,7 +104,7 @@ def main() -> None:
         w("")
 
     # ---- 1. verification -----------------------------------------------------
-    vs = read("validation_summary_jnpt.csv")
+    vs = read(f"validation_summary_{FOCAL}.csv")
     if vs:
         w("## 1. Does the model compute what it claims to?")
         w("")
@@ -122,7 +124,7 @@ def main() -> None:
         w("")
 
     # ---- 2. instruments ------------------------------------------------------
-    ins = read("instruments_jnpt.csv")
+    ins = read(f"instruments_{FOCAL}.csv")
     if ins:
         fb = next((f(r["exp_social_cost_usd"]) for r in ins
                    if r["model"].startswith("centralized")), math.nan)
@@ -156,7 +158,7 @@ def main() -> None:
         w("")
 
     # ---- 3. reach ------------------------------------------------------------
-    rc = read("reach_jnpt.csv")
+    rc = read(f"reach_{FOCAL}.csv")
     if rc:
         base = f(rc[0]["min_attainable_emissions_kgco2"])
         w("## 3. Reach: the tightest emission target each instrument can induce")
@@ -187,7 +189,7 @@ def main() -> None:
         w("")
 
     # ---- 4. state contingency -------------------------------------------------
-    ct = read("state_contingency_jnpt.csv")
+    ct = read(f"state_contingency_{FOCAL}.csv")
     if ct:
         w("## 4. When does indexing the charge to the grid state pay?")
         w("")
@@ -215,7 +217,7 @@ def main() -> None:
 
     # ---- 5. stochastic --------------------------------------------------------
     st = S.get("stochastic", {})
-    ws = read("wait_and_see_jnpt.csv")
+    ws = read(f"wait_and_see_{FOCAL}.csv")
     if st:
         w("## 5. Is the uncertainty worth modelling?")
         w("")
@@ -245,7 +247,7 @@ def main() -> None:
         w("")
 
     # ---- 6. collaboration -----------------------------------------------------
-    sh = read("shapley_jnpt.csv")
+    sh = read(f"shapley_{FOCAL}.csv")
     co = S.get("collaboration", {})
     cs = S.get("collab_seeds", {})
     if sh and co:
@@ -331,7 +333,7 @@ def main() -> None:
     # ---- 8. cross country -------------------------------------------------------
     cc = read("cross_country.csv")
     if cc:
-        w("## 8. Eight corridors, eight grids")
+        w("## 8. Ten corridors, eight grid regimes")
         w("")
         w("| Port | Country | First best | No charge | F4 | Links electrified | Emission cut (%) |")
         w("|---|---|---|---|---|---|---|")
@@ -415,20 +417,18 @@ def main() -> None:
       "because that figure is not well measured at 40 t, **not** because the grids are "
       "poorly measured. If one number in this package deserves a better source, it is this "
       "one.")
-    w("- The outer grid states for every country except India are **constructed**, "
-      "and their clean states are below anything those majority-fossil systems reach today. "
-      "The *mean* of each country's tree is calibrated to its published annual average, so "
-      "no aggregate result depends on the outer levels; but the state *spread*, which is "
-      "what makes state-contingent pricing worth anything, is a construction for three of "
-      "the eight countries.")
+    w("- Every grid state is a **published** factor (build margin, average, operating "
+      "margin, or the margins implied by the IFI harmonised combined margins), except "
+      "California's cleanest state, which is set to zero for curtailed renewable output. "
+      "The *mean* of each regime's tree is calibrated to its published annual average.")
     w("- The regime matrix separates carbon from topology only in its **grid-only** panel. "
       "The full-regime panel also moves both fuel prices and the non-fuel haulage cost, "
-      "which ranges threefold across these eight countries and is not a property of any "
+      "which ranges severalfold across these regimes and is not a property of any "
       "power system.")
     w("- The corridor networks are comparable as modelling objects of similar structure, "
-      "**not** as equally complete representations of their hinterlands. Rotterdam's and "
-      "Manzanillo's absorb their ports' whole hinterland road volume onto a handful of "
-      "nodes, so their arc volumes are high relative to reality.")
+      "**not** as equally complete representations of their hinterlands; freight is split "
+      "across nodes by published populations and the verdicts are tested against random "
+      "re-splits (split_ensemble.csv).")
     w("- **Reach** is an optimistic measure: where the coalition is indifferent between "
       "optima the leader is assumed to get the one it prefers. The comparison between "
       "families is unaffected; the absolute levels are optimistic.")

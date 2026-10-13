@@ -1,0 +1,10 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Tianjin Port (Xingang/Dongjiang),port,38.9868,117.7449,0.00,0.00
+n1,Tianjin,demand,39.1336,117.2054,0.167,0.55
+n2,Langfang,demand,39.5383,116.6835,0.066,0.55
+n3,Beijing,demand,39.9067,116.3975,0.262,0.55
+n4,Tangshan,demand,39.6294,118.1739,0.093,0.55
+n5,Cangzhou,demand,38.3047,116.8387,0.088,0.55
+n6,Baoding,demand,38.8740,115.4640,0.139,0.55
+n7,Shijiazhuang,demand,38.0425,114.5100,0.135,0.55
+n8,Zhangjiakou,demand,40.7690,114.8860,0.050,0.55

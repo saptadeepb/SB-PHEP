@@ -1,0 +1,10 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Ningbo-Zhoushan (Beilun),port,29.9330,121.8330,0.00,0.00
+n1,Ningbo,demand,29.8690,121.5540,0.160,0.55
+n2,Shaoxing,demand,30.0024,120.5786,0.090,0.55
+n3,Hangzhou,demand,30.2670,120.1530,0.205,0.55
+n4,Huzhou,demand,30.8925,120.0875,0.057,0.55
+n5,Yiwu (Jinhua pref.),demand,29.3069,120.0753,0.120,0.55
+n6,Taizhou,demand,28.6557,121.4208,0.113,0.55
+n7,Wenzhou,demand,27.9938,120.6993,0.163,0.55
+n8,Jiaxing,demand,30.7470,120.7560,0.092,0.55

@@ -1,0 +1,11 @@
+tail,head,highway,electrifiable,road_km,road_km_source
+o,j1,E34 / R1 (Kennedy tunnel),1,,
+o,n1,E34 / E17,1,,
+n1,n2,E17,1,,
+j1,n3,E19 (A1),1,,
+n3,n4,E19 (A7) / A54,1,,
+j1,j2,E313 (A13),1,,
+j2,n5,E314 (A2),1,,
+j2,n6,E313 (A13),1,,
+n5,n7,E314 (A2/A76/A4),1,,
+j1,n8,E34 (A21/A67),1,,

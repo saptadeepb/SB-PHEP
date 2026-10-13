@@ -1,0 +1,12 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Antwerp Deurganck dock (left bank),port,51.2869,4.2641,0.00,0.00
+j1,Antwerp (R1 ring / Kennedy tunnel),junction,51.2178,4.4003,0.00,0.00
+j2,Lummen (E313/E314 interchange),junction,50.9830,5.2000,0.00,0.00
+n1,Ghent,demand,51.0536,3.7253,0.081,0.45
+n2,Lille (FR),demand,50.6278,3.0583,0.071,0.45
+n3,Brussels,demand,50.8467,4.3525,0.373,0.45
+n4,Charleroi,demand,50.4081,4.4475,0.061,0.45
+n5,Genk,demand,50.9670,5.5000,0.020,0.45
+n6,Liege,demand,50.6397,5.5706,0.059,0.45
+n7,Cologne (DE),demand,50.9364,6.9528,0.305,0.45
+n8,Venlo (NL),demand,51.3670,6.1670,0.030,0.45

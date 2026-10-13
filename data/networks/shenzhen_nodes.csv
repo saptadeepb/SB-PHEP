@@ -1,0 +1,10 @@
+node,name,role,lat,lon,demand_weight,exp_share
+o,Shenzhen Yantian (YICT),port,22.5733,114.2742,0.00,0.00
+n1,Shenzhen,demand,22.5467,114.0544,0.236,0.55
+n2,Dongguan,demand,23.0210,113.7520,0.141,0.55
+n3,Guangzhou,demand,23.1300,113.2600,0.252,0.55
+n4,Foshan,demand,23.0214,113.1216,0.128,0.55
+n5,Zhongshan,demand,22.5170,113.3925,0.059,0.55
+n6,Jiangmen,demand,22.5789,113.0815,0.065,0.55
+n7,Huizhou,demand,23.1120,114.4160,0.081,0.55
+n8,Heyuan,demand,23.7443,114.7002,0.038,0.55

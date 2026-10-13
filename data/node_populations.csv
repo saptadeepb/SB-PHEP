@@ -1,0 +1,80 @@
+network,node,name,population,unit,year,url
+rotterdam,n1,Moerdijk,37185,municipality,2021-01,https://en.wikipedia.org/wiki/Moerdijk
+rotterdam,n2,Tilburg,221947,municipality,2021-01,https://en.wikipedia.org/wiki/Tilburg
+rotterdam,n3,Eindhoven,249054,municipality,2025-01-01,https://en.wikipedia.org/wiki/Eindhoven
+rotterdam,n4,Venlo,101988,municipality,2021-01,https://en.wikipedia.org/wiki/Venlo
+rotterdam,n5,Duisburg,500810,city (kreisfreie Stadt),2025-12-31,https://en.wikipedia.org/wiki/Duisburg
+rotterdam,n6,Nijmegen,177359,municipality,2021-01,https://en.wikipedia.org/wiki/Nijmegen
+rotterdam,n7,Utrecht,378140,municipality,2026-01-01,https://en.wikipedia.org/wiki/Utrecht
+shanghai,n1,Kunshan,2092496,county-level city,2020 census,https://en.wikipedia.org/wiki/Kunshan
+shanghai,n2,Suzhou,10655766,"prefecture-level city EXCLUDING Kunshan (12,748,262 - 2,092,496)",2020 census,https://www.citypopulation.de/en/china/admin/32__jiangsu
+shanghai,n3,Wuxi,7462135,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/32__jiangsu
+shanghai,n4,Changzhou,5278121,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/32__jiangsu
+shanghai,n5,Nanjing,9314685,sub-provincial city,2020 census,https://www.citypopulation.de/en/china/admin/32__jiangsu
+shanghai,n6,Jiaxing,5400868,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+shanghai,n7,Hangzhou,11936010,sub-provincial city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+shanghai,n8,Huzhou,3367579,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+jebelali,n1,Dubai Al Quoz,1972375.5,"HALF of Dubai city population 3,944,751 (equal split with n8; no published split)",2025,https://en.wikipedia.org/wiki/Dubai
+jebelali,n2,Sharjah Industrial,1872000,city (Sharjah),2024,https://en.wikipedia.org/wiki/Sharjah
+jebelali,n3,Ajman,565767,city,2024,https://en.wikipedia.org/wiki/Ajman
+jebelali,n4,Ras Al Khaimah,191753,city,2025,https://en.wikipedia.org/wiki/Ras_Al_Khaimah
+jebelali,n5,Abu Dhabi Mussafah,2189860,city (Abu Dhabi),2024,https://en.wikipedia.org/wiki/Abu_Dhabi
+jebelali,n6,Al Ain,873839,city,2025,https://en.wikipedia.org/wiki/Al_Ain
+jebelali,n7,Fujairah,118933,city,2023,https://en.wikipedia.org/wiki/Fujairah_(city)
+jebelali,n8,Dubai Industrial City,1972375.5,"HALF of Dubai city population 3,944,751 (equal split with n1; no published split)",2025,https://en.wikipedia.org/wiki/Dubai
+antwerp,n1,Ghent,272657,municipality,2025-01-01,https://en.wikipedia.org/wiki/List_of_most_populous_municipalities_in_Belgium
+antwerp,n2,Lille (FR),238246,commune,2023,https://en.wikipedia.org/wiki/Lille
+antwerp,n3,Brussels,1249597,Brussels-Capital Region,2024-01-01,https://en.wikipedia.org/wiki/Brussels
+antwerp,n4,Charleroi,205763,municipality,2025-01-01,https://en.wikipedia.org/wiki/List_of_most_populous_municipalities_in_Belgium
+antwerp,n5,Genk,68058,municipality,2025-01-01,https://en.wikipedia.org/wiki/List_of_most_populous_municipalities_in_Belgium
+antwerp,n6,Liege,197323,municipality,2025-01-01,https://en.wikipedia.org/wiki/List_of_most_populous_municipalities_in_Belgium
+antwerp,n7,Cologne (DE),1025523,city (kreisfreie Stadt),2025-12-31,https://en.wikipedia.org/wiki/Cologne
+antwerp,n8,Venlo (NL),101988,municipality,2021-01,https://en.wikipedia.org/wiki/Venlo
+ningbo,n1,Ningbo,9404283,sub-provincial city (whole admin area),2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n2,Shaoxing,5270977,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n3,Hangzhou,11936010,sub-provincial city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n4,Huzhou,3367579,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n5,Yiwu (Jinhua pref.),7050683,"prefecture-level city (Jinhua; Yiwu county-level city alone = 1,859,390)",2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n6,Taizhou,6622888,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n7,Wenzhou,9572903,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+ningbo,n8,Jiaxing,5400868,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/33__zhejiang
+qingdao,n1,Qingdao,10071722,sub-provincial city,2020 census,https://en.wikipedia.org/wiki/Qingdao
+qingdao,n2,Weifang,9386705,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+qingdao,n3,Zibo,4704138,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+qingdao,n4,Jinan,9202432,sub-provincial city (incl. former Laiwu),2020 census,https://en.wikipedia.org/wiki/Jinan
+qingdao,n5,Yantai,7102116,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+qingdao,n6,Linyi,11018365,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+qingdao,n7,Jining,8357897,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+qingdao,n8,Tai'an,5472217,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/37__shandong
+tianjin,n1,Tianjin,13866009,municipality,2020 census,https://en.wikipedia.org/wiki/Tianjin
+tianjin,n2,Langfang,5464087,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+tianjin,n3,Beijing,21893095,municipality,2020 census,https://en.wikipedia.org/wiki/Beijing
+tianjin,n4,Tangshan,7717983,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+tianjin,n5,Cangzhou,7300783,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+tianjin,n6,Baoding,11544036,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+tianjin,n7,Shijiazhuang,11235086,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+tianjin,n8,Zhangjiakou,4118908,prefecture-level city,2020 census,https://www.citypopulation.de/en/china/admin/13__hebei
+shenzhen,n1,Shenzhen,17560000,sub-provincial city (Wikipedia rounded figure),2020 census,https://en.wikipedia.org/wiki/Shenzhen
+shenzhen,n2,Dongguan,10466625,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Dongguan
+shenzhen,n3,Guangzhou,18676605,sub-provincial city,2020 census,https://en.wikipedia.org/wiki/Guangzhou
+shenzhen,n4,Foshan,9498863,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Foshan
+shenzhen,n5,Zhongshan,4418060,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Zhongshan
+shenzhen,n6,Jiangmen,4798090,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Jiangmen
+shenzhen,n7,Huizhou,6042852,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Huizhou
+shenzhen,n8,Heyuan,2837686,prefecture-level city,2020 census,https://en.wikipedia.org/wiki/Heyuan
+sanpedrobay,n1,City of Industry,10014009,Los Angeles County,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n2,Ontario,727218,San Bernardino County / 3,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n3,Moreno Valley,2418185,Riverside County,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n4,San Bernardino,727218,San Bernardino County / 3,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n5,Barstow,727218,San Bernardino County / 3,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n6,Las Vegas,2265461,Clark County,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n7,Bakersfield,909235,Kern County,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+sanpedrobay,n8,Phoenix,4420568,Maricopa County,2020,"US Census Bureau, 2020 Census county populations (QuickFacts)"
+jnpt,n1,Bhiwandi,11060148,Thane district,2011,"Census of India 2011, district populations"
+jnpt,n2,Chakan-Talegaon,4714704,Pune district / 2,2011,"Census of India 2011, district populations"
+jnpt,n3,Pune,4714704,Pune district / 2,2011,"Census of India 2011, district populations"
+jnpt,n4,Nashik,6107187,Nashik district,2011,"Census of India 2011, district populations"
+jnpt,n5,Aurangabad,3701282,Aurangabad district,2011,"Census of India 2011, district populations"
+jnpt,n6,Ahmednagar,4543159,Ahmednagar district,2011,"Census of India 2011, district populations"
+jnpt,n7,Vapi,1705678,Valsad district,2011,"Census of India 2011, district populations"
+jnpt,n8,Surat,6081322,Surat district,2011,"Census of India 2011, district populations"

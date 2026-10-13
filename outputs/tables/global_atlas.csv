@@ -1,0 +1,51 @@
+rank,port,country,teu_2024_thousand,china_grid_region,ember_lifecycle_ef,position_lifecycle_vs_wtw_interval,official_direct_ef,position_official_vs_ttw_interval,ef_year
+1,Shanghai,China,51506.0,East,0.52534,below,0.55,inside,2025
+2,Singapore,Singapore,41124.0,,0.49709,below,,,2025
+3,Ningbo-Zhoushan,China,39308.0,East,0.52534,below,0.55,inside,2025
+4,Shenzhen,China,33380.0,Southern,0.52534,below,0.4042,below,2025
+5,Qingdao,China,30870.0,North,0.52534,below,0.6361,inside,2025
+6,Guangzhou,China,26070.0,Southern,0.52534,below,0.4042,below,2025
+7,Busan,South Korea,24402.0,,0.41706,below,,,2025
+8,Tianjin,China,23290.0,North,0.52534,below,0.6361,inside,2025
+9,Jebel Ali (Dubai),United Arab Emirates,15536.0,,0.46751,below,,,2025
+10,Port Klang,Malaysia,14645.0,,0.60197,inside,,,2025
+11,Rotterdam,Netherlands,13820.0,,0.25356,below,,,2025
+12,Hong Kong,Hong Kong (China SAR),13668.0,,0.559,below,,,2023
+13,Antwerp-Bruges,Belgium,13532.0,,0.14981999999999998,below,,,2025
+14,Xiamen,China,12255.0,East,0.52534,below,0.55,inside,2025
+15,Tanjung Pelepas,Malaysia,12253.0,,0.60197,inside,,,2025
+16,Los Angeles,United States,10297.0,,0.38439999999999996,below,,,2025
+17,Tanger-Med,Morocco,10241.0,,0.5963999999999999,inside,,,2025
+18,Taicang/Suzhou,China,9670.0,East,0.52534,below,0.55,inside,2025
+19,Long Beach,United States,9650.0,,0.38439999999999996,below,,,2025
+20,Laem Chabang,Thailand,9555.0,,0.54574,below,,,2025
+21,Kaohsiung,Taiwan,9228.0,,0.63321,inside,,,2025
+22,Ho Chi Minh City (Saigon),Vietnam,9158.0,,0.46073000000000003,below,,,2025
+23,Beibu Gulf,China,9020.0,Southern,0.52534,below,0.4042,below,2025
+24,New York/New Jersey,United States,8698.0,,0.38439999999999996,below,,,2025
+25,Mundra,India,8217.0,,0.67013,inside,,,2025
+26,Tanjung Priok (Jakarta),Indonesia,7827.0,,0.68025,inside,,,2025
+27,Hamburg,Germany,7800.0,,0.32965,below,,,2025
+28,Colombo,Sri Lanka,7780.0,,0.32927999999999996,below,,,2025
+29,Haiphong,Vietnam,7151.0,,0.46073000000000003,below,,,2025
+30,Cai Mep/Vung Tau,Vietnam,7083.0,,0.46073000000000003,below,,,2025
+31,Jawaharlal Nehru (Mumbai),India,7053.0,,0.67013,inside,,,2025
+32,Rizhao,China,6710.0,North,0.52534,below,0.6361,inside,2025
+33,Lianyungang,China,6691.0,East,0.52534,below,0.55,inside,2025
+34,Yingkou,China,5560.0,Northeast,0.52534,below,0.5122,inside,2025
+35,Savannah,United States,5546.0,,0.38439999999999996,below,,,2025
+36,Manila,Philippines,5503.0,,0.58829,inside,,,2025
+37,Santos,Brazil,5485.0,,0.10995,below,,,2025
+38,Valencia,Spain,5476.0,,0.1536,below,,,2025
+39,Abu Dhabi,United Arab Emirates,5421.0,,0.46751,below,,,2025
+40,Dalian,China,5400.0,Northeast,0.52534,below,0.5122,inside,2025
+41,Colon,Panama,5395.0,,0.22115,below,,,2025
+42,Yantai,China,5090.0,North,0.52534,below,0.6361,inside,2025
+43,Piraeus,Greece,4792.0,,0.31509,below,,,2025
+44,Algeciras,Spain,4713.0,,0.1536,below,,,2025
+45,Tokyo,Japan,4701.0,,0.47726,below,,,2025
+46,Bremerhaven,Germany,4445.0,,0.32965,below,,,2025
+47,Tanjung Perak (Surabaya),Indonesia,4300.0,,0.68025,inside,,,2025
+48,Houston,United States,4140.0,,0.38439999999999996,below,,,2025
+49,Dongguan,China,4018.0,Southern,0.52534,below,0.4042,below,2025
+50,Balboa,Panama,4014.0,,0.22115,below,,,2025

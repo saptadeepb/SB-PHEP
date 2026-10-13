@@ -36,9 +36,9 @@ from . import scale as SC
 from .instance import DEMAND_LEVELS, Instance, build_instance
 from .corridors import NETWORKS, COUNTRIES, FOCAL
 #  Transmission and distribution losses used only for the alternative accounting
-#  boundary. India, Mexico and the Netherlands as in the original calibration; the
+#  boundary. India and the Netherlands as in the original calibration; the
 #  default of 10% applies where no national figure has been verified.
-TD_LOSSES = {"India": 0.17, "Mexico": 0.12, "Netherlands": 0.04}
+TD_LOSSES = {"India": 0.17, "Netherlands": 0.04}
 
 TAB = "outputs/tables"
 
@@ -262,15 +262,40 @@ def _obj_bound(res) -> Optional[float]:
         return None
 
 
+_SERVICE_CACHE: dict = {}
+
+
+def _first_best_unmet(inst: Instance) -> dict:
+    """Unserved boxes per scenario in the social optimum (the service target)."""
+    key = (inst.name, inst.country, round(inst.wage, 6), len(inst.C))
+    if key not in _SERVICE_CACHE:
+        cen = M.centralized(inst, time_limit=900.0)
+        _SERVICE_CACHE[key] = {s: float(cen["perS"][s]["unmet"]) for s in inst.S}
+    return _SERVICE_CACHE[key]
+
+
 def _force_full_service(m, inst: Instance, lps) -> None:
+    """Serve at least as many boxes, in every scenario, as the social optimum does.
+
+    Where a box's road delivery costs more than the unserved-demand penalty (the
+    most distant nodes of a few corridors), even the social optimum leaves it
+    unserved, and a literal full-service requirement would make every instrument's
+    reach problem infeasible.  The target is therefore the first best's service
+    level, which equals full service wherever the first best serves everything.
+    """
     import pyomo.environ as pyo
+    allow = _first_best_unmet(inst)
     m.serve = pyo.ConstraintList()
     for s in inst.S:
         ix = lps[s].index
-        for c in inst.C:
-            for n in inst.Dn:
-                m.serve.add(m.x[s, ix[("uI", c, n)]] == 0)
-                m.serve.add(m.x[s, ix[("uE", c, n)]] == 0)
+        if allow[s] <= 1e-6:
+            for c in inst.C:
+                for n in inst.Dn:
+                    m.serve.add(m.x[s, ix[("uI", c, n)]] == 0)
+                    m.serve.add(m.x[s, ix[("uE", c, n)]] == 0)
+        else:
+            m.serve.add(sum(m.x[s, ix[(k, c, n)]] for k in ("uI", "uE")
+                            for c in inst.C for n in inst.Dn) <= allow[s] + 1e-6)
 
 
 def _min_emissions_bilevel(inst: Instance, family: str, time_limit: float,
@@ -505,7 +530,8 @@ def reversal_analysis(networks=NETWORKS) -> dict:
 # =========================================================================== #
 def cross_country(networks=NETWORKS,
                   family: str = "F4", time_limit: float = 900.0,
-                  all_families=("F0", "F1", "F2", "F3", "F4")) -> dict:
+                  all_families=("F0", "F1", "F2", "F3", "F4"),
+                  only_ckpt: bool = False) -> dict:
     """Every corridor under its own national regime, with every instrument family.
 
     Solving only F0 and F4 away from the focal corridor would leave the statement
@@ -516,7 +542,19 @@ def cross_country(networks=NETWORKS,
     """
     _log("cross-country study")
     rows, fam_rows, out = [], [], {}
+    import json as _json, os as _os
+    ckdir = _os.path.join(TAB, "_ckpt_cross")
+    _os.makedirs(ckdir, exist_ok=True)
     for nm in networks:
+        ck = _os.path.join(ckdir, f"{nm}.json")
+        if _os.path.exists(ck):
+            #  Resume: a corridor already solved in an earlier (interrupted) run.
+            d = _json.load(open(ck))
+            rows.append(d["row"]); fam_rows.extend(d["fam_rows"])
+            _log(f"   {nm}: loaded from checkpoint")
+            continue
+        if only_ckpt:
+            continue
         inst = build_instance(nm)
         cen = M.centralized(inst, time_limit=time_limit)
         res = {}
@@ -583,6 +621,11 @@ def cross_country(networks=NETWORKS,
                      100.0 * (f0["exp_emis"] - f4["exp_emis"]) / f0["exp_emis"],
                      inst.meta["expected_ef_kgco2_per_kwh"],
                      inst.meta["published_ef_avg"]])
+        _json.dump({"row": rows[-1], "fam_rows": fam_rows[-len(all_families):]},
+                   open(ck, "w"), default=float)
+    if only_ckpt and len(rows) < len(networks):
+        _log(f"   only {len(rows)} of {len(networks)} corridors checkpointed; not writing")
+        return out
     _write("cross_country.csv",
            ["network", "port", "country", "n_edges", "n_arcs", "boxes_per_day",
             "cost_first_best", "cost_no_charge", f"cost_{family}",
@@ -602,7 +645,8 @@ def cross_country(networks=NETWORKS,
 
 def regime_matrix(networks=NETWORKS,
                   countries=COUNTRIES,
-                  family: str = "F4", time_limit: float = 900.0) -> dict:
+                  family: str = "F4", time_limit: float = 900.0,
+                  only_ckpt: bool = False) -> dict:
     """Cross every corridor topology with every national regime, twice.
 
     The question is whether a result belongs to *the Indian grid* or to *the
@@ -622,8 +666,18 @@ def regime_matrix(networks=NETWORKS,
     """
     _log("network x regime matrix")
     rows = []
+    import json as _json, os as _os
+    ckdir = _os.path.join(TAB, "_ckpt_regime")
+    _os.makedirs(ckdir, exist_ok=True)
     for swap in ("full", "grid"):
         for nm in networks:
+            ck = _os.path.join(ckdir, f"{swap}_{nm}.json")
+            if _os.path.exists(ck):
+                rows.extend(_json.load(open(ck)))
+                continue
+            if only_ckpt:
+                continue
+            n0 = len(rows)
             for ctry in countries:
                 inst = (build_instance(nm, country=ctry) if swap == "full"
                         else build_instance(nm, grid_country=ctry))
@@ -646,6 +700,10 @@ def regime_matrix(networks=NETWORKS,
                 _log(f"   [{swap}] {nm} under {ctry}: "
                      f"{100.0 * share_e / max(share_t, 1e-9):.1f}% electric "
                      f"({r.get('status')})")
+            _json.dump(rows[n0:], open(ck, "w"), default=float)
+    if only_ckpt and len(rows) < 2 * len(networks) * len(countries):
+        _log("   regime matrix incomplete; not writing")
+        return {"rows": rows}
     _write("regime_matrix.csv",
            ["swap", "network", "regime_country", "cost_usd", "cost_first_best",
             "n_electrified", "n_electrifiable", "pct_electrified",
@@ -759,7 +817,7 @@ def sensitivity(inst: Instance, family: str = "F4", time_limit: float = 180.0,
     for rho in band("platoon_share_cap"):
         record("platoon_share_cap", rho,
                _solve(replace(inst, rho=rho), family, time_limit=time_limit, mip_gap=mip_gap))
-    for wg in (0.20, inst.wage, 0.60, 1.20):
+    for wg in sorted({0.5 * inst.wage, inst.wage, 2.0 * inst.wage}):
         record("haulage_cost_usd_per_km", wg,
                _solve(replace(inst, wage=wg), family, time_limit=time_limit, mip_gap=mip_gap))
     for pen in band("unmet_penalty", extra=(400.0, 2000.0)):
@@ -876,16 +934,19 @@ def collaboration_cross(networks=NETWORKS, family: str = "F4",
         g = CG.analyse(inst, family, leader=base["leader"])
         d = g["decomposition"]
         tot = d["total_gain"] or float("nan")
+        pb = platooning_gain_bound(inst, base)
         rows.append([nm, inst.port, inst.country, g["standalone_total"], g["grand"],
                      g["gain"], g["gain_pct"], d["pooling_gain"], d["platooning_gain"],
                      100.0 * d["pooling_gain"] / tot, g["shapley_in_core"],
-                     g["core_nonempty"], base.get("status")])
+                     g["core_nonempty"], base.get("status"), pb,
+                     100.0 * pb / g["standalone_total"]])
         _log(f"   {nm}: gain {g['gain_pct']:.2f}%, pooling share "
              f"{100.0 * d['pooling_gain'] / tot:.0f}% ({base.get('status')})")
     _write("collaboration_cross.csv",
            ["network", "port", "country", "standalone_total_usd", "grand_coalition_usd",
             "gain_usd", "gain_pct", "pooling_gain_usd", "platooning_gain_usd",
-            "pooling_share_pct", "shapley_in_core", "core_nonempty", "leader_status"], rows)
+            "pooling_share_pct", "shapley_in_core", "core_nonempty", "leader_status",
+            "platooning_gain_bound_usd", "platooning_bound_pct_of_standalone"], rows)
     return rows
 
 
@@ -896,7 +957,9 @@ def scalability(base_network: str = FOCAL, family: str = "F4",
                 edge_sizes=(3, 5, 7, 9, 11), corridors=(1, 2, 3),
                 scenario_grid=((2, 2), (3, 3), (4, 4)),
                 carriers=(2, 3, 5, 8),
-                time_limit: float = 600.0, enum_limit_edges: int = 7) -> dict:
+                time_limit: float = 600.0, enum_limit_edges: int = 5,
+                axes=("edges", "corridors", "scenarios", "carriers"),
+                out_name: str = "scalability.csv") -> dict:
     """Grow the instance along four axes and compare the exact methods."""
     _log("scalability study")
     rows = []
@@ -930,19 +993,19 @@ def scalability(base_network: str = FOCAL, family: str = "F4",
              + (f", ENUM {en['runtime']:.1f}s" if en else ""))
 
     full = build_instance(base_network, n_carriers=3)
-    for k in edge_sizes:
+    for k in (edge_sizes if "edges" in axes else ()):
         run(SC.sub_network(full, k), f"edges={k}", do_enum=(k <= enum_limit_edges))
-    for k in corridors:
+    for k in (corridors if "corridors" in axes else ()):
         if k == 1:
             continue
         run(SC.multi_corridor(full, k), f"corridors={k}")
-    for (nd, ng) in scenario_grid:
+    for (nd, ng) in (scenario_grid if "scenarios" in axes else ()):
         inst = SC.with_scenarios(base_network, nd, ng, n_carriers=3)
         run(inst, f"scenarios={nd * ng}")
-    for nc in carriers:
+    for nc in (carriers if "carriers" in axes else ()):
         run(SC.with_carriers(full, nc), f"carriers={nc}")
 
-    _write("scalability.csv",
+    _write(out_name,
            ["instance", "n_edges", "n_arcs", "n_carriers", "n_scenarios",
             "log10_design_space", "sd_binaries", "sd_variables", "sd_constraints",
             "sd_runtime_s", "sd_status", "sd_objective",
@@ -1012,7 +1075,7 @@ def state_contingency_value(inst: Instance, time_limit: float = 900.0,
                          _fmt(f3.get("sigma") or {}), _fmt(f4.get("sigma") or {}),
                          certified, consistent,
                          cen.get("status"), f3.get("status"), f4.get("status"),
-                         f3.get("mip_gap"), f4.get("mip_gap")])
+                         f3.get("mip_gap"), f4.get("mip_gap"), contingency_bound(i2, cen.get("bays"))])
             _log(f"   scc={scc} spread={spread}: gap F3={g3} F4={g4} "
                  f"certified={certified} consistent={consistent} "
                  f"[{cen.get('status')}/{f3.get('status')}/{f4.get('status')}]")
@@ -1022,7 +1085,7 @@ def state_contingency_value(inst: Instance, time_limit: float = 900.0,
             "gap_F3_pct", "gap_F4_pct", "sigma_F3", "sigma_F4",
             "all_certified", "theory_consistent",
             "status_first_best", "status_F3", "status_F4",
-            "mip_gap_F3", "mip_gap_F4"], rows)
+            "mip_gap_F3", "mip_gap_F4", "gap_F3_bound_prop5"], rows)
     return {"rows": rows}
 
 
@@ -1152,4 +1215,382 @@ def repair_families_csv(path: str) -> int:
         w = _csv.writer(fh)
         w.writerow(head)
         w.writerows(body)
+    return n
+
+# =========================================================================== #
+#  Theory checks and the corridor-level emissions verdict                      #
+# =========================================================================== #
+def platooning_gain_bound(inst: Instance, sol: dict) -> float:
+    """Proposition (platooning bound): an a-priori ceiling on what platooning can add.
+
+    A platooned truck saves the fraction ``psave`` of its traction energy and of the
+    emissions and grid load that come with it, and at most ``rho`` of the trucks on an
+    arc can platoon.  The platooning gain of any coalition is therefore at most
+    H * psave * rho * sum_s p_s * c_s * K_s, where K_s is the truck-kilometres of the
+    plan and c_s the larger of the two drivetrains' social traction cost per km in
+    state s.  Coordination costs are ignored, so this is an upper bound.
+    """
+    tot = 0.0
+    for s in inst.S:
+        c_d = inst.f_diesel * (inst.p_diesel + inst.w_emis * inst.ef_diesel)
+        c_e = inst.e_elec * (inst.price[s] + inst.w_grid + inst.w_emis * inst.ef[s])
+        ps = sol["perS"][s]
+        K = ps.get("electric_km", 0.0) + ps.get("diesel_km", 0.0)
+        tot += inst.prob[s] * max(c_d, c_e) * K
+    return inst.H * inst.psave * inst.rho * tot
+
+
+def contingency_bound(inst: Instance, bays: Optional[dict] = None) -> float:
+    """Proposition (value of state contingency): gap(F3) <= w H sum_s p_s |ef_s - e| G^_s.
+
+    With a state-blind surcharge set at w*e + nu, carriers' and society's costs differ
+    only by w * sum_s p_s (ef_s - e) G_s(x).  Both plans' grid energy lies in
+    [0, G^_s], G^_s = min(Gavail_s, installed charging capacity), so the loss is at
+    most w H sum_s p_s |ef_s - e| G^_s.  ``e`` minimises the bound (a weighted median).
+    """
+    cap = (inst.resource_share * inst.module_kwh * sum(bays.values())
+           if bays else float("inf"))
+    ghat = {s: min(inst.Gavail[s], cap) for s in inst.S}
+    pts = sorted((inst.ef[s], inst.prob[s] * ghat[s]) for s in inst.S)
+    tot = sum(w for _, w in pts)
+    acc, e_med = 0.0, pts[-1][0]
+    for e, w in pts:
+        acc += w
+        if acc >= 0.5 * tot:
+            e_med = e
+            break
+    return inst.w_emis * inst.H * sum(
+        inst.prob[s] * abs(inst.ef[s] - e_med) * ghat[s] for s in inst.S)
+
+
+def emission_decomposition(inst: Instance, plan: dict, base: dict) -> dict:
+    """Theorem (load-weighted factor): split a plan's emissions change into two parts.
+
+    traction  -- replacing the plan's own diesel kilometres by electric ones:
+                 H * sum_s p_s (eps*ef_s - phi*gamma) * Keff_s, whose sign is the sign of
+                 ef_L - ef0, ef_L the load-weighted grid factor;
+    plan      -- the change in total, platooned and empty truck-kilometres between the
+                 plan and the base, valued at diesel emissions.
+    """
+    pg = inst.f_diesel * inst.ef_diesel
+    trac = plan_eff = 0.0
+    num = den = 0.0
+    for s in inst.S:
+        p = inst.prob[s]
+        a, b = plan["perS"][s], base["perS"][s]
+        keff = a["electric_km"] - inst.psave * a["plat_e_km"]            # effective e-km
+        trac += p * (inst.e_elec * inst.ef[s] - pg) * keff
+        num += p * inst.ef[s] * keff
+        den += p * keff
+        d_plan = pg * ((a["electric_km"] + a["diesel_km"])
+                       - inst.psave * (a["plat_e_km"] + a["plat_d_km"]))
+        d_base = pg * (b["diesel_km"] + b["electric_km"]
+                       - inst.psave * (b["plat_d_km"] + b["plat_e_km"]))
+        plan_eff += p * (d_plan - d_base)
+    return {"traction": inst.H * trac, "plan": inst.H * plan_eff,
+            "ef_L": (num / den) if den > 1e-9 else float("nan"),
+            "e_km_share": den}
+
+
+def corridor_verdicts(networks=NETWORKS, time_limit: float = 900.0) -> list:
+    """Where does the social-cost-optimal programme cut emissions, and why?
+
+    For every corridor: the first best (the authority's optimum under the
+    closed-form charge), the all-diesel corridor, and the uncharged operating plan
+    on the first-best infrastructure, with the emissions change split by the
+    load-weighted-factor theorem and the welfare gap of not pricing checked against
+    its bound (externality cost of the emissions and grid-load difference).
+    """
+    _log("corridor verdicts")
+    rows = []
+    for nm in networks:
+        inst = build_instance(nm, n_carriers=3)
+        fb = _solve(inst, "F4", time_limit=time_limit)
+        dz = M.centralized(inst, fix_y={e: 0 for e in inst.E},
+                           fix_bays={e: 0 for e in inst.E}, time_limit=time_limit)
+        f0 = M.bilevel_sd(inst, "F0", fix_y=fb["y"], fix_bays=fb["bays"],
+                          time_limit=time_limit)
+        dec = emission_decomposition(inst, fb, dz)
+        ef0 = inst.f_diesel * inst.ef_diesel / inst.e_elec
+        gap0 = (f0["obj"] - fb["obj"]) if f0.get("obj") is not None else float("nan")
+        bound0 = ((inst.w_emis * (f0["exp_emis"] - fb["exp_emis"])
+                   + inst.w_grid * (f0["exp_grid"] - fb["exp_grid"]))
+                  if f0.get("obj") is not None else float("nan"))
+        share_e = sum(fb["perS"][s]["electric"] * inst.prob[s] for s in inst.S)
+        share_t = sum(fb["perS"][s]["trucks"] * inst.prob[s] for s in inst.S)
+        rows.append([nm, inst.port, inst.country, inst.meta["published_ef_avg"],
+                     dec["ef_L"], ef0, fb["obj"], dz["obj"],
+                     100.0 * (1 - fb["obj"] / dz["obj"]),
+                     fb["exp_emis"], dz["exp_emis"],
+                     100.0 * (fb["exp_emis"] / dz["exp_emis"] - 1),
+                     dec["traction"], dec["plan"],
+                     fb["n_electrified"], len(inst.E),
+                     100.0 * share_e / share_t if share_t else 0.0,
+                     f0.get("exp_emis"), gap0, bound0, contingency_bound(inst, fb.get("bays")),
+                     fb.get("status"), dz.get("status"), f0.get("status")])
+        _log(f"   {nm}: emissions {rows[-1][11]:+.1f}% vs all-diesel, ef_L "
+             f"{dec['ef_L']:.3f} (avg {inst.meta['published_ef_avg']:.3f})")
+    _write("corridor_verdicts.csv",
+           ["network", "port", "regime", "ef_avg", "ef_load_weighted", "ef_neutral",
+            "cost_first_best", "cost_all_diesel", "social_saving_pct",
+            "emis_first_best", "emis_all_diesel", "emis_change_pct",
+            "traction_effect_kg", "plan_effect_kg", "n_electrified", "n_electrifiable",
+            "pct_truck_movements_electric", "emis_uncharged_on_fb_design",
+            "welfare_gap_uncharged_usd", "welfare_gap_bound_usd",
+            "contingency_gap_bound_usd", "status_fb", "status_diesel", "status_f0"], rows)
+    return rows
+
+
+def split_ensemble(networks=NETWORKS, n_draws: int = 30, concentration: float = 4.0,
+                   seed: int = 7, time_limit: float = 300.0) -> list:
+    """Do the corridor verdicts survive a different split of freight across nodes?
+
+    The baseline split is proportional to published populations.  Each draw replaces
+    it by a Dirichlet(concentration * K * w0) sample, K the number of demand nodes
+    (coefficient of variation of a node of average weight about 1/sqrt(concentration)), re-solves the first best and the
+    all-diesel corridor, and records the verdict.
+    """
+    import numpy as _np
+    _log("split ensemble")
+    rng = _np.random.default_rng(seed)
+    rows = []
+    for nm in networks:
+        base = build_instance(nm, n_carriers=3)
+        w0 = {n: base.node_info[n]["demand_weight"] for n in base.Dn}
+        keys = list(w0)
+        for k in range(n_draws):
+            draw = rng.dirichlet([max(1e-3, concentration * len(keys) * w0[n])
+                                  for n in keys])
+            nw = dict(zip(keys, draw))
+            inst = build_instance(nm, n_carriers=3, node_weights=nw)
+            fb = _solve(inst, "F4", time_limit=time_limit)
+            dz = M.centralized(inst, fix_y={e: 0 for e in inst.E},
+                               fix_bays={e: 0 for e in inst.E}, time_limit=time_limit)
+            if fb.get("obj") is None or dz.get("obj") is None:
+                continue
+            dec = emission_decomposition(inst, fb, dz)
+            share_e = sum(fb["perS"][s]["electric"] * inst.prob[s] for s in inst.S)
+            share_t = sum(fb["perS"][s]["trucks"] * inst.prob[s] for s in inst.S)
+            rows.append([nm, k, 100.0 * (fb["exp_emis"] / dz["exp_emis"] - 1),
+                         100.0 * (1 - fb["obj"] / dz["obj"]), dec["ef_L"],
+                         dec["traction"], dec["plan"], fb["n_electrified"],
+                         100.0 * share_e / share_t if share_t else 0.0,
+                         fb.get("status"), dz.get("status")])
+        _log(f"   {nm}: {n_draws} draws")
+    _write("split_ensemble.csv",
+           ["network", "draw", "emis_change_pct", "social_saving_pct", "ef_load_weighted",
+            "traction_effect_kg", "plan_effect_kg", "n_electrified",
+            "pct_truck_movements_electric", "status_fb", "status_diesel"], rows)
+    return rows
+
+
+def global_atlas() -> list:
+    """Place the grid of each of the world's 50 busiest container ports against the threshold.
+
+    Ember's national figures are lifecycle CO2e, so they are compared with the
+    threshold on the lifecycle/well-to-wheel boundary; China's official regional
+    averages (direct CO2) are compared with the central busbar/tank-to-wheel one.
+    """
+    _log("global atlas")
+    pars = _load_pars()
+    eta = pars["charger_efficiency"]
+    e_mid = pars["e_elec"]["value"] / eta["value"]
+    e_lo = pars["e_elec"]["low"] / eta["high"]
+    e_hi = pars["e_elec"]["high"] / eta["low"]
+    fd = pars["f_diesel"]
+    def interval(key):
+        g = pars[key]
+        return (fd["low"] * g["low"] / e_hi, fd["value"] * g["value"] / e_mid,
+                fd["high"] * g["high"] / e_lo)
+    ttw, wtw = interval("ef_diesel_ttw"), interval("ef_diesel_wtw")
+    official = {"East": 0.5500, "North": 0.6361, "Southern": 0.4042,
+                "Northeast": 0.5122, "Central": 0.5271, "Northwest": 0.5543}
+    pos = lambda x, iv: "above" if x > iv[2] else ("below" if x < iv[0] else "inside")
+    rows = []
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "data", "atlas_ports.csv")
+    with open(path, newline="") as fh:
+        for r in csv.DictReader(fh):
+            ef = float(r["ef_g_per_kwh"]) / 1000.0
+            reg = (r.get("grid_region") or "").strip()
+            off = official.get(reg) if r["country"].startswith("China") else None
+            rows.append([r["rank"], r["port"], r["country"], float(r["teu_2024_thousand"]),
+                         reg, ef, pos(ef, wtw), off if off else "",
+                         pos(off, ttw) if off else "", r["ef_year"]])
+    _write("global_atlas.csv",
+           ["rank", "port", "country", "teu_2024_thousand", "china_grid_region",
+            "ember_lifecycle_ef", "position_lifecycle_vs_wtw_interval",
+            "official_direct_ef", "position_official_vs_ttw_interval", "ef_year"], rows)
+    _log(f"   intervals: TTW {ttw}, WTW {wtw}")
+    return rows
+
+def reach_across(networks=("tianjin", "sanpedrobay", "jnpt"), families=("F0", "F4"),
+                 time_limit: float = 600.0, mip_gap: float = 1e-3) -> list:
+    """Does pricing buy reach on corridors other than the lead case?
+
+    For each corridor: the planner's least emissions, and for each family the
+    least emissions it can induce (attainable level) with the branch-and-bound
+    floor below which it provably cannot go.  Pricing provably buys reach on a
+    corridor when F0's floor lies above F4's attainable level.
+    """
+    _log("reach across corridors")
+    rows = []
+    for nm in networks:
+        inst = build_instance(nm, n_carriers=3)
+        pl = min_emissions_under(inst, None, time_limit=time_limit, mip_gap=mip_gap)
+        res = {}
+        for fam in families:
+            res[fam] = min_emissions_under(inst, fam, time_limit=time_limit, mip_gap=mip_gap)
+        for lab, r in [("planner", pl)] + [(f, res[f]) for f in families]:
+            rows.append([nm, inst.port, lab, r.get("emis"), r.get("emis_lb"),
+                         r.get("status"), r.get("mip_gap")])
+        f0lb, f4 = res["F0"].get("emis_lb"), res["F4"].get("emis")
+        _log(f"   {nm}: F0 floor {f0lb}, F4 attainable {f4}, planner {pl.get('emis')}")
+    _write("reach_across.csv", ["network", "port", "family", "min_attainable_emissions_kgco2",
+                                "proved_floor_kgco2", "status", "certified_mip_gap"], rows)
+    return rows
+
+
+def haulage_neutrality(networks=NETWORKS, factors=(0.5, 2.0), time_limit: float = 600.0) -> list:
+    """Proposition (haulage-cost neutrality), checked numerically.
+
+    The non-fuel haulage cost enters both drivetrains' per-kilometre cost
+    identically, so it cannot change which traction a truck-kilometre uses; it can
+    change only the plan (routes, empty repositioning, unmet demand).  Re-solving the
+    first best at half and twice the haulage cost shows how much the verdict moves.
+    """
+    _log("haulage-cost neutrality check")
+    rows = []
+    for nm in networks:
+        base = build_instance(nm, n_carriers=3)
+        for fct in (1.0,) + tuple(factors):
+            inst = replace(base, wage=base.wage * fct)
+            fb = _solve(inst, "F4", time_limit=time_limit)
+            dz = M.centralized(inst, fix_y={e: 0 for e in inst.E},
+                               fix_bays={e: 0 for e in inst.E}, time_limit=time_limit)
+            dec = emission_decomposition(inst, fb, dz)
+            share_e = sum(fb["perS"][s]["electric"] * inst.prob[s] for s in inst.S)
+            share_t = sum(fb["perS"][s]["trucks"] * inst.prob[s] for s in inst.S)
+            rows.append([nm, fct, inst.wage, 100.0 * (fb["exp_emis"] / dz["exp_emis"] - 1),
+                         dec["ef_L"], fb["n_electrified"],
+                         100.0 * share_e / share_t if share_t else 0.0,
+                         dec["traction"], dec["plan"], fb.get("status")])
+        _log(f"   {nm} done")
+    _write("haulage_neutrality.csv",
+           ["network", "haulage_factor", "haulage_usd_km", "emis_change_pct",
+            "ef_load_weighted", "n_electrified", "pct_truck_movements_electric",
+            "traction_effect_kg", "plan_effect_kg", "status"], rows)
+    return rows
+
+
+def lifetime_thresholds(life_years: float = 12.0) -> list:
+    """Proposition (lifetime verdict): the grid decarbonisation rate a programme needs.
+
+    If the decisive grid factor falls exponentially at rate g a year from ef_now,
+    its average over a vehicle life L is ef_now (1 - exp(-gL)) / (gL).  Electrifying
+    lowers lifetime emissions iff that average is below ef0, which needs
+    g >= g*, the unique root of (1 - exp(-gL)) / (gL) = ef0 / ef_now when
+    ef_now > ef0 (and g* = 0 otherwise).  The year in which the annual factor itself
+    crosses ef0 is ln(ef_now / ef0) / g.
+    """
+    import math as _m
+    from . import data_io as D
+    _log("lifetime thresholds")
+    regs = D.load_energy_regimes()
+    pars = _load_pars()
+    eta = pars["charger_efficiency"]
+    ef0 = pars["f_diesel"]["value"] * pars["ef_diesel_ttw"]["value"] / (
+        pars["e_elec"]["value"] / eta["value"])
+    ef0_lo = pars["f_diesel"]["low"] * pars["ef_diesel_ttw"]["low"] / (
+        pars["e_elec"]["high"] / eta["low"])
+    ef0_hi = pars["f_diesel"]["high"] * pars["ef_diesel_ttw"]["high"] / (
+        pars["e_elec"]["low"] / eta["high"])
+
+    def gstar(ef_now, thr):
+        r = thr / ef_now
+        if r >= 1.0:
+            return 0.0
+        f = lambda g: (1 - _m.exp(-g * life_years)) / (g * life_years) - r
+        lo, hi = 1e-9, 5.0
+        if f(hi) > 0:
+            return float("inf")
+        for _ in range(200):
+            mid = 0.5 * (lo + hi)
+            if f(mid) > 0:
+                lo = mid
+            else:
+                hi = mid
+        return 0.5 * (lo + hi)
+
+    rows = []
+    for c, v in regs.items():
+        for key, lab in (("ef_avg", "average"), ("ef_marginal", "operating margin")):
+            x = v[key]
+            rows.append([c, lab, x, ef0, gstar(x, ef0), gstar(x, ef0_lo), gstar(x, ef0_hi),
+                         life_years])
+    _write("lifetime_thresholds.csv",
+           ["regime", "factor", "ef_now", "ef_neutral", "g_star_central",
+            "g_star_at_low_threshold", "g_star_at_high_threshold", "life_years"], rows)
+    return rows
+
+
+def repair_f0_rows() -> int:
+    """A time-limited F0 run can return a design worse than one already known.
+
+    Leaving the first-best infrastructure uncharged is a feasible F0 design, and
+    its cost and emissions are recorded by ``corridor_verdicts``.  Where a
+    time-limited F0 incumbent costs more, the uncharged first-best design is
+    reported instead (the same rule applied to F1--F3 with the F0 design), and the
+    row stays marked as time-limited.  Returns the number of rows replaced.
+    """
+    import csv as _csv
+    vp = os.path.join(TAB, "corridor_verdicts.csv")
+    fp = os.path.join(TAB, "cross_country_families.csv")
+    cp = os.path.join(TAB, "cross_country.csv")
+    if not all(os.path.exists(p) for p in (vp, fp, cp)):
+        return 0
+    vd = {r["network"]: r for r in _csv.DictReader(open(vp))}
+    fam = list(_csv.DictReader(open(fp)))
+    n = 0
+    better = {}
+    for r in fam:
+        v = vd.get(r["network"])
+        if r["family"] != "F0" or r["status"].startswith("optimal") or v is None:
+            continue
+        g_known = float(v["welfare_gap_uncharged_usd"])
+        if g_known < float(r["coordination_gap_usd"]) - 1.0:
+            fb = float(r["first_best"])
+            r["cost_usd"] = fb + g_known
+            r["coordination_gap_usd"] = g_known
+            r["gap_pct"] = 100.0 * g_known / fb
+            r["exp_emissions_kgco2"] = float(v["emis_uncharged_on_fb_design"])
+            r["n_electrified"] = v["n_electrified"]
+            r["status"] = "maxTimeLimit (first-best design uncharged)"
+            better[r["network"]] = r
+            n += 1
+    # F1/F2 rows that retained the F0 design inherit the repaired F0 design
+    for r in fam:
+        b = better.get(r["network"])
+        if b is not None and r["family"] in ("F1", "F2") and float(r["coordination_gap_usd"]) > float(b["coordination_gap_usd"]):
+            for k in ("cost_usd", "coordination_gap_usd", "gap_pct", "exp_emissions_kgco2", "n_electrified"):
+                r[k] = b[k]
+            r["status"] = "maxTimeLimit (F0 design retained)"
+    with open(fp, "w", newline="") as fh:
+        w = _csv.DictWriter(fh, fieldnames=list(fam[0].keys()))
+        w.writeheader(); w.writerows(fam)
+    cc = list(_csv.DictReader(open(cp)))
+    for r in cc:
+        b = better.get(r["network"])
+        if b is None:
+            continue
+        r["cost_no_charge"] = b["cost_usd"]
+        r["emis_no_charge"] = b["exp_emissions_kgco2"]
+        r["n_elec_no_charge"] = b["n_electrified"]
+        r["value_of_charge_usd"] = float(b["cost_usd"]) - float(r["cost_F4"])
+        r["value_of_charge_pct"] = 100.0 * r["value_of_charge_usd"] / float(b["cost_usd"])
+        r["emission_cut_pct"] = 100.0 * (float(b["exp_emissions_kgco2"]) - float(r["emis_F4"])) / float(b["exp_emissions_kgco2"])
+    with open(cp, "w", newline="") as fh:
+        w = _csv.DictWriter(fh, fieldnames=list(cc[0].keys()))
+        w.writeheader(); w.writerows(cc)
+    _log(f"   repaired {n} time-limited F0 row(s) with the uncharged first-best design")
     return n

@@ -1,0 +1,50 @@
+network,node,name,lat,lon,source_url
+sanpedrobay,o,San Pedro Bay (LA–Long Beach),33.7406,-118.2760,copied from losangeles_nodes.csv (Port of Los Angeles); not re-sourced
+antwerp,o,Antwerp Deurganck dock (left bank),51.28688,4.26415,"https://www.dpworld.com/antwerp/contact-us/visitors (DP World Antwerp Gateway truck main gate, Doel)"
+antwerp,j1,Antwerp (R1 ring / Kennedy tunnel),51.21778,4.40028,https://en.wikipedia.org/wiki/Antwerp
+antwerp,j2,Lummen (E313/E314 interchange),50.98300,5.20000,https://en.wikipedia.org/wiki/Lummen
+antwerp,n1,Ghent,51.05361,3.72528,https://en.wikipedia.org/wiki/Ghent
+antwerp,n2,Lille (FR),50.62780,3.05830,https://en.wikipedia.org/wiki/Lille
+antwerp,n3,Brussels,50.84667,4.35250,https://en.wikipedia.org/wiki/Brussels
+antwerp,n4,Charleroi,50.40806,4.44750,https://en.wikipedia.org/wiki/Charleroi
+antwerp,n5,Genk,50.96700,5.50000,https://en.wikipedia.org/wiki/Genk
+antwerp,n6,Liege,50.63972,5.57056,https://en.wikipedia.org/wiki/Li%C3%A8ge
+antwerp,n7,Cologne (DE),50.93639,6.95278,https://en.wikipedia.org/wiki/Cologne
+antwerp,n8,Venlo (NL),51.36700,6.16700,https://en.wikipedia.org/wiki/Venlo
+ningbo,o,Ningbo-Zhoushan (Beilun),29.93300,121.83300,https://en.wikipedia.org/wiki/Port_of_Ningbo-Zhoushan
+ningbo,n1,Ningbo,29.86900,121.55400,https://en.wikipedia.org/wiki/Ningbo
+ningbo,n2,Shaoxing,30.00237,120.57864,https://www.worldatlas.com/as/cn/33/where-is-shaoxing.html
+ningbo,n3,Hangzhou,30.26700,120.15300,https://en.wikipedia.org/wiki/Hangzhou
+ningbo,n4,Huzhou,30.89250,120.08750,https://en.wikipedia.org/wiki/Huzhou
+ningbo,n5,Yiwu (Jinhua pref.),29.30694,120.07528,https://en.wikipedia.org/wiki/Yiwu
+ningbo,n6,Taizhou,28.65570,121.42080,"https://en.wikipedia.org/wiki/Taizhou,_Zhejiang"
+ningbo,n7,Wenzhou,27.99380,120.69930,https://en.wikipedia.org/wiki/Wenzhou
+ningbo,n8,Jiaxing,30.74700,120.75600,https://en.wikipedia.org/wiki/Jiaxing
+qingdao,o,Qingdao Qianwan,36.00444,120.20278,https://en.wikipedia.org/wiki/Qingdao_Qianwan_Container_Terminal
+qingdao,j1,Jiaozhou,36.26470,120.03340,https://en.wikipedia.org/wiki/Jiaozhou_City
+qingdao,n1,Qingdao,36.06690,120.38270,https://en.wikipedia.org/wiki/Qingdao
+qingdao,n2,Weifang,36.70800,119.16200,https://en.wikipedia.org/wiki/Weifang
+qingdao,n3,Zibo,36.81380,118.05500,https://en.wikipedia.org/wiki/Zibo
+qingdao,n4,Jinan,36.67020,117.02070,https://en.wikipedia.org/wiki/Jinan
+qingdao,n5,Yantai,37.46460,121.44780,https://en.wikipedia.org/wiki/Yantai
+qingdao,n6,Linyi,35.10380,118.35640,https://en.wikipedia.org/wiki/Linyi
+qingdao,n7,Jining,35.41510,116.58710,https://en.wikipedia.org/wiki/Jining
+qingdao,n8,Tai'an,36.20200,117.08700,https://en.wikipedia.org/wiki/Tai%27an
+tianjin,o,Tianjin Port (Xingang/Dongjiang),38.98680,117.74490,https://www.searates.com/port/tianjin_cn
+tianjin,n1,Tianjin,39.13360,117.20540,https://en.wikipedia.org/wiki/Tianjin
+tianjin,n2,Langfang,39.53830,116.68350,https://en.wikipedia.org/wiki/Langfang
+tianjin,n3,Beijing,39.90667,116.39750,https://en.wikipedia.org/wiki/Beijing
+tianjin,n4,Tangshan,39.62944,118.17389,https://en.wikipedia.org/wiki/Tangshan
+tianjin,n5,Cangzhou,38.30470,116.83870,https://en.wikipedia.org/wiki/Cangzhou
+tianjin,n6,Baoding,38.87400,115.46400,https://en.wikipedia.org/wiki/Baoding
+tianjin,n7,Shijiazhuang,38.04250,114.51000,https://en.wikipedia.org/wiki/Shijiazhuang
+tianjin,n8,Zhangjiakou,40.76900,114.88600,https://en.wikipedia.org/wiki/Zhangjiakou
+shenzhen,o,Shenzhen Yantian (YICT),22.57333,114.27417,https://en.wikipedia.org/wiki/Yantian_International_Container_Terminals
+shenzhen,n1,Shenzhen,22.54667,114.05444,https://en.wikipedia.org/wiki/Shenzhen
+shenzhen,n2,Dongguan,23.02100,113.75200,https://en.wikipedia.org/wiki/Dongguan
+shenzhen,n3,Guangzhou,23.13000,113.26000,https://en.wikipedia.org/wiki/Guangzhou
+shenzhen,n4,Foshan,23.02140,113.12160,https://en.wikipedia.org/wiki/Foshan
+shenzhen,n5,Zhongshan,22.51700,113.39250,https://en.wikipedia.org/wiki/Zhongshan
+shenzhen,n6,Jiangmen,22.57890,113.08150,https://en.wikipedia.org/wiki/Jiangmen
+shenzhen,n7,Huizhou,23.11200,114.41600,https://en.wikipedia.org/wiki/Huizhou
+shenzhen,n8,Heyuan,23.74430,114.70020,https://en.wikipedia.org/wiki/Heyuan

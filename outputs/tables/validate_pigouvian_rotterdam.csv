@@ -1,0 +1,4 @@
+setting,theta,sigma,objective,relative_gap_to_first_best
+first best (centralized),,,1134122573.118751,0.0
+Theorem 2 levels imposed,0.173128,L-CL=0.053250;L-AV=0.058000;L-MA=0.079850;H-CL=0.053250;H-AV=0.058000;H-MA=0.079850,1134122573.118751,0.0
+charge levels optimised,L-CL=1.5;L-AV=0.6;L-MA=0.1875;H-CL=0.1125;H-AV=0.075;H-MA=0.3,L-CL=0;L-AV=0.058;L-MA=0.3;H-CL=0.075;H-AV=0;H-MA=0.0375,1134122573.1187513,2.102229377605363e-16

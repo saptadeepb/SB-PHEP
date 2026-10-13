@@ -225,7 +225,7 @@ class Instance:
 # --------------------------------------------------------------------------- #
 #  builder                                                                     #
 # --------------------------------------------------------------------------- #
-def build_instance(network: str = "jnpt",
+def build_instance(network: str = "rotterdam",
                    n_carriers: int = 3,
                    demand_levels: Tuple[str, ...] = ("L", "H"),
                    grid_states: Tuple[str, ...] = ("clean", "average", "marginal"),
@@ -239,7 +239,8 @@ def build_instance(network: str = "jnpt",
                    sigma_max: float = 0.30,
                    scc: float | None = None,
                    country: str | None = None,
-                   grid_country: str | None = None) -> Instance:
+                   grid_country: str | None = None,
+                   node_weights: Dict[str, float] | None = None) -> Instance:
     """Assemble an instance.
 
     ``n_bits`` controls how many charging bays may be installed on one edge
@@ -296,6 +297,10 @@ def build_instance(network: str = "jnpt",
     daily_boxes *= demand_scale
 
     weights = {n: net.node_info[n]["demand_weight"] for n in net.demand_nodes}
+    #  ``node_weights`` replaces the published-population split, for the
+    #  split-robustness ensemble: what the paper claims must not hinge on it.
+    if node_weights is not None:
+        weights = {n: float(node_weights[n]) for n in net.demand_nodes}
     wsum = sum(weights.values())
     if wsum <= 0:
         raise ValueError(f"network {network}: demand weights sum to zero")
