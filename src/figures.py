@@ -1034,12 +1034,26 @@ def fig_study_areas(networks=NETWORKS,
     #  The figure is drawn at the size it is printed --- a hair under the text
     #  block --- so that the place names are the size they were designed to be
     #  rather than whatever a scale factor makes of them.
-    nrow = (len(networks) + 1) // 2
-    fig, axes = plt.subplots(nrow, 2, figsize=(6.3, 3.0 * nrow))
-    fig.subplots_adjust(left=0.055, right=0.985, top=1 - 0.30 / (3.0 * nrow),
-                        bottom=0.95 / (3.0 * nrow), wspace=0.17, hspace=0.25)
+    #  Three panels per row.  With ten corridors the last row holds one panel in
+    #  the centre slot, and the two side slots carry the legend and the note, so
+    #  every slot of the grid is used.
+    ncol = 3
+    nrow = (len(networks) + ncol - 1) // ncol
+    fig, axes = plt.subplots(nrow, ncol, figsize=(6.5, 2.25 * nrow))
+    fig.subplots_adjust(left=0.05, right=0.99, top=1 - 0.22 / (2.25 * nrow),
+                        bottom=0.12 / (2.25 * nrow), wspace=0.22, hspace=0.28)
+    slots = list(axes.ravel())
+    spare = []
+    rem = len(networks) % ncol
+    if rem:
+        last = slots[-ncol:]
+        centre = [last[ncol // 2]] if rem == 1 else last[:rem]
+        spare = [a for a in last if a not in centre]
+        slots = slots[:-ncol] + centre
+    for a in spare:
+        a.axis("off")
 
-    for ax, nm in zip(axes.ravel(), networks):
+    for ax, nm in zip(slots, networks):
         net = load_network(nm, ports[nm]["circuity"])
         lons = [i["lon"] for i in net.node_info.values()]
         lats = [i["lat"] for i in net.node_info.values()]
@@ -1199,12 +1213,18 @@ def fig_study_areas(networks=NETWORKS,
         #  only claimed in the legend if some link on some panel is drawn that way
         handles.append(Line2D([], [], color="#9b9b9b", linewidth=1.8,
                               label="link not electrifiable"))
-    fig.legend(handles=handles, frameon=False, ncol=5, loc="lower center",
-               bbox_to_anchor=(0.5, 0.028), fontsize=7.4, columnspacing=1.2)
-    fig.text(0.5, 0.004, "Numbers on the links are road kilometres. Shoreline, "
-             "national borders and rivers from the GSHHS and WDB databases "
-             "distributed with Basemap.",
-             ha="center", va="bottom", fontsize=6.4, color=INK2)
+    note = ("Numbers on the links are road kilometres. Shoreline, national "
+            "borders and rivers from the GSHHS and WDB databases distributed "
+            "with Basemap.")
+    if len(spare) >= 2:
+        spare[0].legend(handles=handles, frameon=False, ncol=1, loc="center",
+                        fontsize=7.0, handlelength=1.8, labelspacing=0.9)
+        spare[1].text(0.5, 0.5, textwrap.fill(note, 30), ha="center", va="center",
+                      fontsize=6.6, color=INK2, transform=spare[1].transAxes)
+    else:
+        fig.legend(handles=handles, frameon=False, ncol=5, loc="lower center",
+                   bbox_to_anchor=(0.5, 0.028), fontsize=7.4, columnspacing=1.2)
+        fig.text(0.5, 0.004, note, ha="center", va="bottom", fontsize=6.4, color=INK2)
     return _save(fig, "fig_study_areas.pdf")
 
 
